@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">BlueBacon</string>
+    <string name="title_activity_main">BlueBacon</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="no_data">No data</string>
+
+    <!-- radar_frag_item strings -->
+    <string name="uuid_title">UUID:</string>
+    <string name="major_id_title">Major-ID:</string>
+    <string name="minor_id_title">Minor-ID:</string>
+    <string name="rssi_title">RSSI:</string>
+    <string name="distance_title">Distance:</string>
+
+    <string name="uuid">UUID</string>
+    <string name="major_id">Major-ID</string>
+    <string name="minor_id">Minor-ID</string>
+    <string name="rssi">RSSI</string>
+    <string name="distance">Distance</string>
+
+    <!-- machine_frag_item strings -->
+    <string name="name_title">Name:</string>
+    <string name="description_title">Description:</string>
+    <string name="maintenance_title">Maintenance State:</string>
+    <string name="production_title">Production State:</string>
+    <string name="beacons_title">Beacons:</string>
+
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="maintenance">Maintenance State</string>
+    <string name="production">Production State</string>
+    <string name="beacons">active / mapped</string>
+
+    <string name="not_active">- beacon not active -</string>
+
+    <!-- setup_frag strings -->
+    <string name="clean_values">Use cleaned values:</string>
+    <string name="simple_mode">Use simple mode:</string>
+    <string name="sw_off">Off</string>
+    <string name="sw_on">On</string>
+</resources>
