@@ -44,7 +44,7 @@ public class MachineRadar extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         blueBaconManager = mainActivity.getBlueBaconManager();
-        machines = new ArrayList<Machine>();
+        machines = new ArrayList<>();
         machineAdapter = new MachineAdapter(getActivity(), machines, blueBaconManager);
     }
 

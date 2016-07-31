@@ -1,5 +1,7 @@
 package de.dhbw.bluebacon.model;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,9 +59,9 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param productionState Current production state of the machine
      */
     public Machine(Integer id, String name, String description, String maintenanceState, String productionState) {
-        this.observer = new ArrayList<IObserver>();
-        this.machineBeacons = new HashMap<String, ObservableBeacon>();
-        this.beaconPositions = new HashMap<String, Tuple<Double, Double>>();
+        this.observer = new ArrayList<>();
+        this.machineBeacons = new HashMap<>();
+        this.beaconPositions = new HashMap<>();
         this.id = id;
         this.name = name;
         this.description = description;
@@ -71,7 +73,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Sets if value cleaning will be used or not
      * @param state Boolean true/false
      */
-    public void SetValueCleaning(Boolean state) {
+    public void setValueCleaning(Boolean state) {
         this.useCleanedValues = state;
     }
 
@@ -79,7 +81,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Returns if value cleaning will be used or not
      * @return Boolean true/false
      */
-    public Boolean GetValueCleaning() {
+    public Boolean getValueCleaning() {
         return this.useCleanedValues;
     }
 
@@ -87,7 +89,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for machine name
      * @return String Machine name
      */
-    public String GetName() {
+    public String getName() {
         return this.name;
     }
 
@@ -95,7 +97,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for machine description
      * @return String Machine description
      */
-    public String GetDescription() {
+    public String getDescription() {
         return this.description;
     }
 
@@ -103,7 +105,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for machine maintenance state
      * @return String Machine maintenance State
      */
-    public String GetMaintenanceState() {
+    public String getMaintenanceState() {
         return this.maintenanceState;
     }
 
@@ -111,7 +113,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for machine production state
      * @return String Machine production state
      */
-    public String GetProductionState() {
+    public String getProductionState() {
         return this.productionState;
     }
 
@@ -119,10 +121,10 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for mapped beacons of the machine
      * @return List of mapped beacons
      */
-    public Map<String, ObservableBeacon> GetMappedBeacons() {
-        List<ObservableBeacon> availableBeacons = new ArrayList<ObservableBeacon>();
-        List<String> unavailableBeacons = new ArrayList<String>();
-        Map<String, ObservableBeacon> returnMap = new LinkedHashMap<String, ObservableBeacon>();
+    public Map<String, ObservableBeacon> getMappedBeacons() {
+        List<ObservableBeacon> availableBeacons = new ArrayList<>();
+        List<String> unavailableBeacons = new ArrayList<>();
+        Map<String, ObservableBeacon> returnMap = new LinkedHashMap<>();
 
         for(String uuid : this.machineBeacons.keySet()) {
             if(this.machineBeacons.get(uuid) != null) {
@@ -135,7 +137,7 @@ public class Machine implements IObserver, Comparable<Machine> {
         Collections.sort(availableBeacons);
 
         for(ObservableBeacon beacon : availableBeacons) {
-            returnMap.put(beacon.GetFullUUID(), beacon);
+            returnMap.put(beacon.getFullUUID(), beacon);
         }
 
         for(String uuid : unavailableBeacons) {
@@ -149,8 +151,8 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Registers beacon to machine (mapping)
      * @param uuid Full UUID of beacon
      */
-    public void RegisterBeacon(String uuid) {
-        this.RegisterBeacon(uuid, 0., 0.);
+    public void registerBeacon(String uuid) {
+        this.registerBeacon(uuid, 0., 0.);
     }
 
     /**
@@ -159,7 +161,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param posX X position of coordinate
      * @param posY Y position of coordinate
      */
-    public void RegisterBeacon(String uuid, Double posX, Double posY) {
+    public void registerBeacon(String uuid, Double posX, Double posY) {
         this.machineBeacons.put(uuid, null);
         this.beaconPositions.put(uuid, new Tuple<Double, Double>(posX, posY));
     }
@@ -169,7 +171,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param uuid Full UUID of beacon
      * @param beacon ObservableBeacon object
      */
-    public void SetBeacon(String uuid, ObservableBeacon beacon) {
+    public void setBeacon(String uuid, ObservableBeacon beacon) {
         this.machineBeacons.remove(uuid);
         this.machineBeacons.put(uuid, beacon);
     }
@@ -178,8 +180,8 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for all available beacons of the machine sorted by rssi
      * @return List of available beacons
      */
-    public List<ObservableBeacon> GetTopBeacons() {
-        List<ObservableBeacon> topBeacons = new ArrayList<ObservableBeacon>();
+    public List<ObservableBeacon> getTopBeacons() {
+        List<ObservableBeacon> topBeacons = new ArrayList<>();
 
         for(String uuid : this.machineBeacons.keySet()) {
             if(this.machineBeacons.get(uuid) != null) {
@@ -197,13 +199,13 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param count n
      * @return List of available beacons
      */
-    public List<ObservableBeacon> GetTopBeacons(Integer count) {
-        List<ObservableBeacon> allTopBeacons = this.GetTopBeacons();
+    public List<ObservableBeacon> getTopBeacons(Integer count) {
+        List<ObservableBeacon> allTopBeacons = this.getTopBeacons();
 
         if(allTopBeacons.size() <= count) {
             return allTopBeacons;
         }else{
-            List<ObservableBeacon> reducedTopBeacons = new ArrayList<ObservableBeacon>();
+            List<ObservableBeacon> reducedTopBeacons = new ArrayList<>();
 
             for(Integer i = 0; i < count; i++) {
                 reducedTopBeacons.add(allTopBeacons.get(i));
@@ -217,7 +219,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Recalculates distance of machine
      */
     protected void recalculate() {
-        List<ObservableBeacon> availableBeacons = new ArrayList<ObservableBeacon>();
+        List<ObservableBeacon> availableBeacons = new ArrayList<>();
 
         for(String uuid : this.machineBeacons.keySet()) {
             if(this.machineBeacons.get(uuid) != null) {
@@ -232,7 +234,7 @@ public class Machine implements IObserver, Comparable<Machine> {
                 this.distance = 999.;
                 break;
             case 1:
-                this.distance = availableBeacons.get(0).GetDistance();
+                this.distance = availableBeacons.get(0).getDistance();
                 break;
             default:
                 this.distance = this.distanceCalculation(availableBeacons);
@@ -250,13 +252,13 @@ public class Machine implements IObserver, Comparable<Machine> {
         if(this.useSimpleMode) {
             a = this.simpleModeDistance;
         }else{
-            Tuple<Double, Double> beacon1 = this.beaconPositions.get(availableBeacons.get(0).GetFullUUID());
-            Tuple<Double, Double> beacon2 = this.beaconPositions.get(availableBeacons.get(1).GetFullUUID());
+            Tuple<Double, Double> beacon1 = this.beaconPositions.get(availableBeacons.get(0).getFullUUID());
+            Tuple<Double, Double> beacon2 = this.beaconPositions.get(availableBeacons.get(1).getFullUUID());
             a = Math.sqrt(Math.pow(beacon1.x - beacon2.x, 2.) + Math.pow(beacon1.y - beacon2.y, 2.));
         }
 
-        double b = availableBeacons.get(0).GetDistance();
-        double c = availableBeacons.get(1).GetDistance();
+        double b = availableBeacons.get(0).getDistance();
+        double c = availableBeacons.get(1).getDistance();
         double calcDistance = (b + c) * (1 - Math.pow(a / (b + c), 2.));
 
         if(calcDistance < 0) {
@@ -270,8 +272,8 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Enable simple mode (2 beacon mode) with default distance (2.0m) or simply disable it
      * @param state true = enable ; false = disable
      */
-    public void SetSimpleMode(Boolean state) {
-        this.SetSimpleMode(state, 2.);
+    public void setSimpleMode(Boolean state) {
+        this.setSimpleMode(state, 2.);
     }
 
     /**
@@ -279,7 +281,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param state true = enable ; false = disable
      * @param distance distance between 2 beacons
      */
-    public void SetSimpleMode(Boolean state, double distance) {
+    public void setSimpleMode(Boolean state, double distance) {
         this.useSimpleMode = state;
         this.simpleModeDistance = distance;
     }
@@ -288,7 +290,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Check if simple mode (2 beacon mode) is enabled
      * @return State of simple mode as boolean (true = enabled ; false = disabled)
      */
-    public Boolean GetSimpleMode() {
+    public Boolean setSimpleMode() {
         return this.useSimpleMode;
     }
 
@@ -296,7 +298,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for simple mode distance
      * @return Simple mode distance
      */
-    public Double GetSimpleModeDistance() {
+    public Double getSimpleModeDistance() {
         return this.simpleModeDistance;
     }
 
@@ -304,7 +306,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for machine distance
      * @return Machine distance
      */
-    public double GetDistance() {
+    public double getDistance() {
         return Math.round(this.distance * 100) / 100.;
     }
 
@@ -312,13 +314,13 @@ public class Machine implements IObserver, Comparable<Machine> {
      * Getter for average rssi of machines beacons
      * @return Average rssi of machines beacons
      */
-    public int GetRSSI() {
+    public int getRSSI() {
         int avg = 0;
         int count = 0;
 
         for(String uuid : this.machineBeacons.keySet()) {
             if(this.machineBeacons.get(uuid) != null) {
-                avg += this.machineBeacons.get(uuid).GetRSSI();
+                avg += this.machineBeacons.get(uuid).getRSSI();
                 count++;
             }
         }
@@ -337,8 +339,8 @@ public class Machine implements IObserver, Comparable<Machine> {
     public void notify(IObservable observable) {
         ObservableBeacon beacon = (ObservableBeacon)observable;
 
-        if(this.machineBeacons.get(beacon.GetFullUUID()) == null) {
-            this.machineBeacons.put(beacon.GetFullUUID(), beacon);
+        if(this.machineBeacons.get(beacon.getFullUUID()) == null) {
+            this.machineBeacons.put(beacon.getFullUUID(), beacon);
         }
 
         this.recalculate();
@@ -357,11 +359,11 @@ public class Machine implements IObserver, Comparable<Machine> {
      *                            comparable to {@code this} instance.
      */
     @Override
-    public int compareTo(Machine another) {
+    public int compareTo(@NonNull Machine another) {
         if(!this.useSimpleMode)
-            return (int) (this.GetDistance() * 100) - (int) (another.GetDistance() * 100);
+            return (int) (this.getDistance() * 100) - (int) (another.getDistance() * 100);
         else
-            return this.GetRSSI() - another.GetRSSI();
+            return this.getRSSI() - another.getRSSI();
     }
 
 }

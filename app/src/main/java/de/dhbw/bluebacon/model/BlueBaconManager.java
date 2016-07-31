@@ -4,8 +4,14 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.SparseArray;
 
-import org.altbeacon.beacon.*;
+import org.altbeacon.beacon.Beacon;
+import org.altbeacon.beacon.BeaconConsumer;
+import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.BeaconParser;
+import org.altbeacon.beacon.RangeNotifier;
+import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.service.RangedBeacon;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,11 +50,11 @@ public class BlueBaconManager implements IObservable {
 
             for(Beacon beacon : beacons) {
                 String uuid = beacon.getId1() + "-" + beacon.getId2() + "-" + beacon.getId3();
-                ObservableBeacon observableBeacon = null;
+                ObservableBeacon observableBeacon;
 
                 if(observableBeacons.containsKey(uuid)) {
                     observableBeacon = observableBeacons.get(uuid);
-                    observableBeacon.SetBeacon(beacon);
+                    observableBeacon.setBeacon(beacon);
                 }else{
                     Log.d(LOGPREFIX, "Previosly unknown beacon '" + uuid + "' now in Range");
                     observableBeacon = new ObservableBeacon(beacon, useCleanedValues);
@@ -59,18 +65,18 @@ public class BlueBaconManager implements IObservable {
                     Machine machine = beaconUuidMachineMapping.get(uuid);
 
                     if(!observableBeacon.isSubscribed(machine)) {
-                        Log.d(LOGPREFIX, "Beacon '" + uuid + "' subscribed to machine '" + machine.GetName() + "'");
+                        Log.d(LOGPREFIX, "Beacon '" + uuid + "' subscribed to machine '" + machine.getName() + "'");
                         observableBeacon.subscribe(machine);
                     }
                 }
             }
 
-            List<String> deleteList = new ArrayList<String>();
+            List<String> deleteList = new ArrayList<>();
 
             for(ObservableBeacon beacon : observableBeacons.values()) {
-                if(beacon.GetLastUpdate().before(minTime)) {
-                    Log.d(LOGPREFIX, "Beacon '" + beacon.GetFullUUID() + "' out of Range");
-                    deleteList.add(beacon.GetFullUUID());
+                if(beacon.getLastUpdate().before(minTime)) {
+                    Log.d(LOGPREFIX, "Beacon '" + beacon.getFullUUID() + "' out of Range");
+                    deleteList.add(beacon.getFullUUID());
                 }
             }
 
@@ -78,7 +84,7 @@ public class BlueBaconManager implements IObservable {
                 observableBeacons.remove(uuid);
 
                 if(beaconUuidMachineMapping.containsKey(uuid)) {
-                    beaconUuidMachineMapping.get(uuid).SetBeacon(uuid, null);
+                    beaconUuidMachineMapping.get(uuid).setBeacon(uuid, null);
                 }
             }
 
@@ -116,7 +122,7 @@ public class BlueBaconManager implements IObservable {
                 try {
                     jsonStr = loader.getJSON("http://sevnlabs.net/bluebacon/machines", JSONLoader.GET);
                     Log.d("Response: ", "> " + jsonStr);
-                    loader.saveLocalMachineData(jsonStr, ((MainActivity)boundConsumer).getApplicationContext());
+                    loader.saveLocalMachineData(jsonStr, (boundConsumer).getApplicationContext());
                 }catch(Exception ex) {
                     Log.d("Response: ", "null");
                     jsonStr = null;
@@ -124,7 +130,7 @@ public class BlueBaconManager implements IObservable {
             }
 
             if(jsonStr == null) {
-                jsonStr = loader.loadLocalMachineData(((MainActivity)boundConsumer).getApplicationContext());
+                jsonStr = loader.loadLocalMachineData((boundConsumer).getApplicationContext());
             }
 
             try {
@@ -147,7 +153,7 @@ public class BlueBaconManager implements IObservable {
                         String uuid = jsonBeacon.getString("uuid");
                         Double posX = jsonBeacon.getDouble("posx");
                         Double posY = jsonBeacon.getDouble("posy");
-                        machine.RegisterBeacon(uuid, posX, posY);
+                        machine.registerBeacon(uuid, posX, posY);
                         beaconUuidMachineMapping.put(uuid, machine);
                     }
                 }
@@ -173,7 +179,7 @@ public class BlueBaconManager implements IObservable {
 
     protected BeaconConsumer boundConsumer;
     protected BeaconManager beaconManager;
-    protected Map<Integer, Machine> machines;
+    protected SparseArray<Machine> machines;
     protected Map<String, Machine> beaconUuidMachineMapping;
     protected Map<String, ObservableBeacon> observableBeacons;
     protected Region region = new Region("region", null, null, null);
@@ -194,10 +200,10 @@ public class BlueBaconManager implements IObservable {
      */
     public BlueBaconManager(BeaconConsumer consumer) {
         this.boundConsumer = consumer;
-        this.beaconUuidMachineMapping = new HashMap<String, Machine>();
-        this.machines = new HashMap<Integer, Machine>();
-        this.observableBeacons = new HashMap<String, ObservableBeacon>();
-        this.observers = new ArrayList<IObserver>();
+        this.beaconUuidMachineMapping = new HashMap<>();
+        this.machines = new SparseArray<>();
+        this.observableBeacons = new HashMap<>();
+        this.observers = new ArrayList<>();
 
         this.loadMachines();
 
@@ -211,17 +217,17 @@ public class BlueBaconManager implements IObservable {
 
     /**
      * Enables or disables value cleaning (Messschleife)
-     * @param state
+     * @param state Boolean
      */
-    public void SetValueCleaning(Boolean state) {
+    public void setValueCleaning(Boolean state) {
         this.useCleanedValues = state;
 
         for(ObservableBeacon beacon : this.observableBeacons.values()) {
-            beacon.SetValueCleaning(state);
+            beacon.setValueCleaning(state);
         }
 
-        for(Machine beacon : this.machines.values()) {
-            beacon.SetValueCleaning(state);
+        for(int i = 0; i < this.machines.size(); i++){
+            this.machines.get(i).setValueCleaning(state);
         }
     }
 
@@ -229,7 +235,7 @@ public class BlueBaconManager implements IObservable {
      * Checks if value cleaning mdoe enabled
      * @return State of value cleaning mode
      */
-    public Boolean GetValueCleaning() {
+    public Boolean getValueCleaning() {
         return this.useCleanedValues;
     }
 
@@ -237,8 +243,8 @@ public class BlueBaconManager implements IObservable {
      * Enable simple mode (2 beacon mode) with default distance (2.0m) or simply disable it
      * @param state true = enable ; false = disable
      */
-    public void SetSimpleMode(Boolean state) {
-        this.SetSimpleMode(state, 2.);
+    public void setSimpleMode(Boolean state) {
+        this.setSimpleMode(state, 2.);
     }
 
     /**
@@ -246,12 +252,12 @@ public class BlueBaconManager implements IObservable {
      * @param state true = enable ; false = disable
      * @param distance distance between 2 beacons
      */
-    public void SetSimpleMode(Boolean state, double distance) {
+    public void setSimpleMode(Boolean state, double distance) {
         this.useSimpleMode = state;
         this.simpleModeDistance = distance;
 
-        for(Machine machine : this.machines.values()) {
-            machine.SetSimpleMode(state, distance);
+        for(int i = 0; i < this.machines.size(); i++){
+            this.machines.get(i).setSimpleMode(state, distance);
         }
     }
 
@@ -259,29 +265,29 @@ public class BlueBaconManager implements IObservable {
      * Check if simple mode (2 beacon mode) is enabled
      * @return State of simple mode as boolean (true = enabled ; false = disabled)
      */
-    public Boolean GetSimpleMode() {
+    public Boolean getSimpleMode() {
         return this.useSimpleMode;
     }
 
     /**
      * Get the configured beacon distance for the simple mode (2 beacon mode)
-     * @return
+     * @return double
      */
-    public double GetSimpleModeDistance() {
+    public double getSimpleModeDistance() {
         return this.simpleModeDistance;
     }
 
     /**
      * Unbind consumer
      */
-    public void Destroy() {
+    public void destroy() {
         this.beaconManager.unbind(this.boundConsumer);
     }
 
     /**
      * Set beacon manager to background mode
      */
-    public void Pause() {
+    public void pause() {
         if (beaconManager.isBound(this.boundConsumer))
             beaconManager.setBackgroundMode(true);
     }
@@ -289,7 +295,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Set beacon manager to foreground mode
      */
-    public void Resume() {
+    public void resume() {
         if (beaconManager.isBound(this.boundConsumer))
             beaconManager.setBackgroundMode(false);
     }
@@ -297,7 +303,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Start ranging beacons
      */
-    public void Start() {
+    public void start() {
         try {
             this.beaconManager.startRangingBeaconsInRegion(this.region);
         }catch(Exception ex) {
@@ -309,7 +315,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Stop ranging beacons
      */
-    public void Stop() {
+    public void stop() {
         try {
             this.beaconManager.stopRangingBeaconsInRegion(this.region);
         }catch(Exception ex) {
@@ -329,14 +335,14 @@ public class BlueBaconManager implements IObservable {
      * Return beacons in range
      * @return Beacons in range
      */
-    public Map<String, ObservableBeacon> GetBeacons() {
+    public Map<String, ObservableBeacon> getBeacons() {
         return this.observableBeacons;
     }
 
     /**
      * Return machines
      */
-    public Map<Integer, Machine> GetMachines() {
+    public SparseArray<Machine> getMachines() {
         return this.machines;
     }
 
@@ -361,7 +367,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Checks if the observer is already subscribed
      *
-     * @param observer
+     * @param observer IObserver
      * @return True if observer is already subscribed
      */
     @Override

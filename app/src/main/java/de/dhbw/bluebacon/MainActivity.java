@@ -1,19 +1,19 @@
 package de.dhbw.bluebacon;
 
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 
 import org.altbeacon.beacon.BeaconConsumer;
 
@@ -21,7 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.dhbw.bluebacon.model.*;
+import de.dhbw.bluebacon.model.BlueBaconManager;
+import de.dhbw.bluebacon.model.IObservable;
+import de.dhbw.bluebacon.model.IObserver;
+import de.dhbw.bluebacon.model.Machine;
+import de.dhbw.bluebacon.model.ObservableBeacon;
 import de.dhbw.bluebacon.view.BeaconRadar;
 import de.dhbw.bluebacon.view.MachineRadar;
 import de.dhbw.bluebacon.view.TabPageAdapter;
@@ -30,14 +34,11 @@ import de.dhbw.bluebacon.view.TabPageAdapter;
 /**
  * Main Activity class
  */
-public class MainActivity extends FragmentActivity implements IObserver, BeaconConsumer {
+public class MainActivity extends AppCompatActivity implements IObserver, BeaconConsumer {
 
     protected BlueBaconManager blueBaconManager;
     protected List<ObservableBeacon> beacons;
     protected List<Machine> machines;
-    ViewPager Tab;
-    TabPageAdapter TabAdapter;
-    ActionBar actionBar;
 
     public List<ObservableBeacon> getBeacons() {
         return beacons;
@@ -50,52 +51,36 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        this.beacons = new ArrayList<ObservableBeacon>();
-        this.machines = new ArrayList<Machine>();
+        this.beacons = new ArrayList<>();
+        this.machines = new ArrayList<>();
         this.blueBaconManager = new BlueBaconManager(this);
         this.blueBaconManager.subscribe(this);
 
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.activity_main);
-        actionBar = getActionBar();
-        //actionBar.hide();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final PagerAdapter adapter = new TabPageAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        tabLayout.setupWithViewPager(viewPager);
 
-        TabAdapter = new TabPageAdapter(getSupportFragmentManager());
-        Tab = (ViewPager)findViewById(R.id.pager);
-        Tab.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                }
-        );
-        Tab.setAdapter(TabAdapter);
-        //Enable Tabs on Action Bar
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
+            public void onPageSelected(int position)
+            {
             }
-
             @Override
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-                Tab.setCurrentItem(tab.getPosition());
+            public void onPageScrollStateChanged(int state)
+            {
             }
-
             @Override
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+            {
             }
-        };
-
-        //Add New Tab
-        actionBar.addTab(actionBar.newTab().setText("Beacon Radar").setTabListener(tabListener));
-        actionBar.addTab(actionBar.newTab().setText("Machine Radar").setTabListener(tabListener));
-        actionBar.addTab(actionBar.newTab().setText("Machine Setup").setTabListener(tabListener));
-
+        });
     }
 
     /**
@@ -139,14 +124,14 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
         this.beacons.clear();
         this.machines.clear();
 
-        for(ObservableBeacon beacon : this.blueBaconManager.GetBeacons().values()) {
+        for(ObservableBeacon beacon : this.blueBaconManager.getBeacons().values()) {
             this.beacons.add(beacon);
         }
 
         Collections.sort(this.beacons);
 
-        for(Machine machine : this.blueBaconManager.GetMachines().values()) {
-            this.machines.add(machine);
+        for(int i = 0; i < this.blueBaconManager.getMachines().size(); i++){
+            this.machines.add(this.blueBaconManager.getMachines().get(i));
         }
 
         Collections.sort(this.machines);
@@ -156,7 +141,7 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
         Log.d("DHBW MainActivity", "Sort by RSSI");
 
         for(ObservableBeacon beacon : this.beacons) {
-            Log.d("DHBW MainActivity", beacon.GetFullUUID() + " : " + beacon.GetRSSI() + " : " + beacon.GetDistance());
+            Log.d("DHBW MainActivity", beacon.getFullUUID() + " : " + beacon.getRSSI() + " : " + beacon.getDistance());
         }
     }
 
@@ -166,7 +151,7 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.blueBaconManager.Destroy();
+        this.blueBaconManager.destroy();
     }
 
     /**
@@ -181,7 +166,7 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
     @Override
     protected void onResume() {
         super.onResume();
-        this.blueBaconManager.Resume();
+        this.blueBaconManager.resume();
     }
 
     /**
@@ -190,7 +175,7 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
     @Override
     protected void onPause() {
         super.onPause();
-        this.blueBaconManager.Pause();
+        this.blueBaconManager.pause();
     }
 
     /**
@@ -198,7 +183,7 @@ public class MainActivity extends FragmentActivity implements IObserver, BeaconC
      */
     @Override
     public void onBeaconServiceConnect() {
-        this.blueBaconManager.Start();
+        this.blueBaconManager.start();
     }
 
     private void refreshViews() {

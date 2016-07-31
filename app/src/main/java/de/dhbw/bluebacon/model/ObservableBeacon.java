@@ -1,12 +1,12 @@
 package de.dhbw.bluebacon.model;
 
+import org.altbeacon.beacon.Beacon;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.altbeacon.beacon.Beacon;
 
 /**
  * ObservableBeacon class
@@ -31,19 +31,19 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * @param useCleanedValues Should values be cleaned?
      */
     public ObservableBeacon(Beacon altBeacon, Boolean useCleanedValues) {
-        this.observer = new ArrayList<IObserver>();
-        this.collectedRSSIs = new HashMap<Integer, Integer>();
-        this.collectedDistances = new HashMap<Integer, Double>();
+        this.observer = new ArrayList<>();
+        this.collectedRSSIs = new HashMap<>();
+        this.collectedDistances = new HashMap<>();
         this.useCleanedValues = useCleanedValues;
         this.uuid = altBeacon.getId1() + "-" + altBeacon.getId2() + "-" + altBeacon.getId3();
-        this.SetBeacon(altBeacon);
+        this.setBeacon(altBeacon);
     }
 
     /**
      * Enables or disables value cleaning (Messschleife)
-     * @param state
+     * @param state Boolean
      */
-    public void SetValueCleaning(Boolean state) {
+    public void setValueCleaning(Boolean state) {
         this.useCleanedValues = state;
     }
 
@@ -51,7 +51,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Checks if value cleaning mdoe enabled
      * @return State of value cleaning mode
      */
-    public Boolean GetValueCleaning() {
+    public Boolean getValueCleaning() {
         return this.useCleanedValues;
     }
 
@@ -59,7 +59,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Update beacon object of AltBeacon library
      * @param altBeacon Beacon object of AltBeacon library
      */
-    public void SetBeacon(Beacon altBeacon) {
+    public void setBeacon(Beacon altBeacon) {
         this.lastUpdate = new Date();
         Beacon prevBeacon = this.altBeacon;
         this.altBeacon = altBeacon;
@@ -110,7 +110,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for last update datetime of ObservableBeacon
      * @return Datetime of last update
      */
-    public Date GetLastUpdate() {
+    public Date getLastUpdate() {
         return this.lastUpdate;
     }
 
@@ -118,7 +118,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for full UUID of beacon
      * @return Full UUID of beacon
      */
-    public String GetFullUUID() {
+    public String getFullUUID() {
         return this.uuid;
     }
 
@@ -126,8 +126,8 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for beacon rssi
      * @return Beacon rssi
      */
-    public int GetRSSI() {
-        return this.GetRSSI(this.useCleanedValues);
+    public int getRSSI() {
+        return this.getRSSI(this.useCleanedValues);
     }
 
     /**
@@ -135,7 +135,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * @param cleaned Should value be cleaned?
      * @return Beacon rssi
      */
-    public int GetRSSI(Boolean cleaned) {
+    public int getRSSI(Boolean cleaned) {
         if(cleaned) {
             return this.cleanedRSSI;
         }else{
@@ -147,8 +147,8 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for beacon distance
      * @return Beacon distance
      */
-    public double GetDistance() {
-        return this.GetDistance(this.useCleanedValues);
+    public double getDistance() {
+        return this.getDistance(this.useCleanedValues);
     }
 
     /**
@@ -156,7 +156,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * @param cleaned Should value be cleaned?
      * @return Beacon distance
      */
-    public double GetDistance(Boolean cleaned) {
+    public double getDistance(Boolean cleaned) {
         if(cleaned) {
             return Math.round(this.cleanedDistance * 100) / 100.;
         }else{
@@ -168,7 +168,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for beacons major ID
      * @return Beacon major ID
      */
-    public String GetMajor() {
+    public String getMajor() {
         return this.altBeacon.getId2().toString();
     }
 
@@ -176,7 +176,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for beacons minor ID
      * @return Beacon minor ID
      */
-    public String GetMinor() {
+    public String getMinor() {
         return this.altBeacon.getId3().toString();
     }
 
@@ -224,7 +224,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      */
     @Override
     public int compareTo(ObservableBeacon another) {
-        return (this.GetRSSI() - another.GetRSSI()) * -1;
+        return (this.getRSSI() - another.getRSSI()) * -1;
     }
 
 }

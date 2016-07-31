@@ -60,14 +60,14 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         // find switch for cleaned values
         swUseCleanedValues = (Switch) machineSetup.findViewById(R.id.swUseCleanedValues);
         // set value from bacon manager
-        swUseCleanedValues.setChecked(blueBaconManager.GetValueCleaning());
+        swUseCleanedValues.setChecked(blueBaconManager.getValueCleaning());
         // attach a listener to check for changes in state
         swUseCleanedValues.setOnCheckedChangeListener(this);
 
         // find switch for simple mode
         swUseSimpleMode = (Switch) machineSetup.findViewById(R.id.swUseSimpleMode);
         // set value from bacon manager
-        swUseSimpleMode.setChecked(blueBaconManager.GetSimpleMode());
+        swUseSimpleMode.setChecked(blueBaconManager.getSimpleMode());
         // attach a listener to check for changes in state
         swUseSimpleMode.setOnCheckedChangeListener(this);
 
@@ -84,13 +84,13 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
 
         switch (buttonView.getId()) {
             case R.id.swUseCleanedValues:
-                blueBaconManager.SetValueCleaning(isChecked);
-                Log.d("DHBW BlueBaconManager", "use cleaned value is set to "+blueBaconManager.GetValueCleaning());
+                blueBaconManager.setValueCleaning(isChecked);
+                Log.d("DHBW BlueBaconManager", "use cleaned value is set to "+blueBaconManager.getValueCleaning());
                 break;
 
             case R.id.swUseSimpleMode:
-                blueBaconManager.SetSimpleMode(isChecked);
-                Log.d("DHBW BlueBaconManager", "use simple mode is set to "+blueBaconManager.GetSimpleMode());
+                blueBaconManager.setSimpleMode(isChecked);
+                Log.d("DHBW BlueBaconManager", "use simple mode is set to "+blueBaconManager.getSimpleMode());
                 break;
 
             default:

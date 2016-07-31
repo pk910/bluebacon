@@ -38,4 +38,6 @@
     <string name="simple_mode">Use simple mode:</string>
     <string name="sw_off">Off</string>
     <string name="sw_on">On</string>
+
+    <string formatted="false" name="beacons_placeholder">%d / %d</string>
 </resources>

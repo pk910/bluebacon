@@ -28,7 +28,7 @@ public class BeaconRadar extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        beacons = new ArrayList<ObservableBeacon>();
+        beacons = new ArrayList<>();
         beaconAdapter = new BeaconAdapter(getActivity(),beacons);
 
     }

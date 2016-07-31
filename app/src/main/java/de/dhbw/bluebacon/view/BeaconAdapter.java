@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.dhbw.bluebacon.R;
 import de.dhbw.bluebacon.model.ObservableBeacon;
@@ -19,7 +20,7 @@ import de.dhbw.bluebacon.model.ObservableBeacon;
  */
 public class BeaconAdapter extends BaseAdapter{
 
-    List<ObservableBeacon> beacons = new ArrayList<ObservableBeacon>();
+    List<ObservableBeacon> beacons = new ArrayList<>();
     LayoutInflater inflater;
     Context context;
 
@@ -83,13 +84,13 @@ public class BeaconAdapter extends BaseAdapter{
         }
 
         ObservableBeacon currentBeacon = (ObservableBeacon) getItem(i);
-        myViewHolder.tvUUID.setText(currentBeacon.GetFullUUID());
-        myViewHolder.tvRSSI.setText(Integer.toString(currentBeacon.GetRSSI()));
-        myViewHolder.tvDistance.setText(Double.toString(currentBeacon.GetDistance()));
+        myViewHolder.tvUUID.setText(currentBeacon.getFullUUID());
+        myViewHolder.tvRSSI.setText(String.format(Locale.getDefault(), "%d", currentBeacon.getRSSI()));
+        myViewHolder.tvDistance.setText(String.format(Locale.getDefault(), "%f", currentBeacon.getDistance()));
         myViewHolder.ivIcon.setImageResource(R.drawable.blukii);
 
-        myViewHolder.tvMajor.setText(currentBeacon.GetMajor());
-        myViewHolder.tvMinor.setText(currentBeacon.GetMinor());
+        myViewHolder.tvMajor.setText(currentBeacon.getMajor());
+        myViewHolder.tvMinor.setText(currentBeacon.getMinor());
 
         return view;
     }

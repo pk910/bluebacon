@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ import de.dhbw.bluebacon.model.ObservableBeacon;
  */
 public class MachineAdapter extends BaseExpandableListAdapter {
 
-    List<Machine> machines = new ArrayList<Machine>();
+    List<Machine> machines = new ArrayList<>();
     List<ObservableBeacon> topBeacons;
     Map<String, ObservableBeacon> mappedBeacons;
     LayoutInflater inflater;
@@ -143,32 +144,32 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         // get current machine object and set values
         Machine currentMachine = (Machine) getGroup(groupPosition);
         // get top beacons mapped to machine
-        this.topBeacons = currentMachine.GetTopBeacons();
+        this.topBeacons = currentMachine.getTopBeacons();
         // get all beacons mapped to machine
-        this.mappedBeacons = currentMachine.GetMappedBeacons();
+        this.mappedBeacons = currentMachine.getMappedBeacons();
 
         // set text data in text views
-        tvName.setText(currentMachine.GetName());
-        tvMaintenance.setText(currentMachine.GetMaintenanceState());
-        tvBeacons.setText(this.topBeacons.size() + " / " + this.mappedBeacons.size());
+        tvName.setText(currentMachine.getName());
+        tvMaintenance.setText(currentMachine.getMaintenanceState());
+        tvBeacons.setText(String.format(this.context.getResources().getString(R.string.beacons_placeholder), this.topBeacons.size(), this.mappedBeacons.size()));
 
         // on refresh remove all programmatically added text views from linear layout
         llDistance.removeAllViews();
 
         // set distance/rssi values according to simple mode value (true/false)
-        if(this.blueBaconManager.GetSimpleMode()) {
+        if(this.blueBaconManager.getSimpleMode()) {
             // add text view for rssi title to linear layout
             llDistance.addView(createTextView(this.context.getString(R.string.rssi_title)));
             // iterate through mapped beacons list
             for(ObservableBeacon beacon : this.topBeacons) {
                 // add text view with rssi data for each beacon to linear layout
-                llDistance.addView(createTextView(Integer.toString(beacon.GetRSSI())));
+                llDistance.addView(createTextView(Integer.toString(beacon.getRSSI())));
             }
         } else {
             // add text view for distance title to linear layout
             llDistance.addView(createTextView(this.context.getString(R.string.distance_title)));
             // add text view with distance data from algorithm to linear layout
-            llDistance.addView(createTextView(Double.toString(currentMachine.GetDistance())));
+            llDistance.addView(createTextView(Double.toString(currentMachine.getDistance())));
         }
 
         return convertView;
@@ -201,13 +202,13 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         // get current machine object and set values
         Machine currentMachine = (Machine) getGroup(groupPosition);
         // get top beacons mapped to machine
-        this.topBeacons = currentMachine.GetTopBeacons();
+        this.topBeacons = currentMachine.getTopBeacons();
         // get all beacons mapped to machine
-        this.mappedBeacons = currentMachine.GetMappedBeacons();
+        this.mappedBeacons = currentMachine.getMappedBeacons();
 
         // set text data in text views
-        tvProduction.setText(currentMachine.GetProductionState());
-        tvDescription.setText(currentMachine.GetDescription());
+        tvProduction.setText(currentMachine.getProductionState());
+        tvDescription.setText(currentMachine.getDescription());
 
         // on refresh remove all programmatically added text views from linear layout
         llBeacons_Wrapper.removeAllViews();
@@ -222,7 +223,7 @@ public class MachineAdapter extends BaseExpandableListAdapter {
 
             // blukii icon
             ImageView blukii = new ImageView(this.context);
-            Drawable icon = this.context.getResources().getDrawable(R.drawable.blukii);
+            Drawable icon = ResourcesCompat.getDrawable(this.context.getResources(), R.drawable.blukii, null);
             icon = resize(icon);
             blukii.setPadding(5,5,5,5);
             blukii.setImageDrawable(icon);
@@ -253,13 +254,13 @@ public class MachineAdapter extends BaseExpandableListAdapter {
             } else {
                 // add major / minor text views
                 llMajor_Minor.addView(createTextView(this.context.getString(R.string.major_id_title)));
-                llMajor_Minor.addView(createTextView(beacon.GetMajor()));
+                llMajor_Minor.addView(createTextView(beacon.getMajor()));
                 llMajor_Minor.addView(createTextView(this.context.getString(R.string.minor_id_title)));
-                llMajor_Minor.addView(createTextView(beacon.GetMinor()));
+                llMajor_Minor.addView(createTextView(beacon.getMinor()));
 
                 // add rssi text views
                 llRSSI.addView(createTextView(this.context.getString(R.string.rssi_title)));
-                llRSSI.addView(createTextView(Integer.toString(beacon.GetRSSI())));
+                llRSSI.addView(createTextView(Integer.toString(beacon.getRSSI())));
             }
 
             // add beacon info to inner wrapper

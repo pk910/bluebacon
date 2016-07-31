@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 /**
  * TabPageAdapter class
  */
-public class TabPageAdapter extends FragmentStatePagerAdapter {
+public class TabPageAdapter extends FragmentStatePagerAdapter  {
 
     public TabPageAdapter(FragmentManager fm) {
         super(fm);
@@ -44,5 +44,24 @@ public class TabPageAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         //Number of Tabs
         return 3;
+    }
+
+    /**
+     * Get Fragment title
+     * @return CharSequence
+     */
+    @Override
+    public CharSequence getPageTitle(int position) {
+        switch (position){
+            case 0:
+                return "Beacon Radar";
+            case 1:
+                return "Machine Radar";
+            case 2:
+                return "Machine Setup";
+            default:
+                break;
+        }
+        return null;
     }
 }

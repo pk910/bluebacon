@@ -21,13 +21,13 @@ public class ObservableBeaconTest extends InstrumentationTestCase {
     }
 
     public void testGetUUID() {
-        assertEquals("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A-1-1", observableBeacon1.GetFullUUID().toUpperCase());
+        assertEquals("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A-1-1", observableBeacon1.getFullUUID().toUpperCase());
     }
     public void testGetRSSI(){
-        assertEquals(-55, observableBeacon1.GetRSSI());
+        assertEquals(-55, observableBeacon1.getRSSI());
     }
     public void testGetDistance(){
-        assertEquals(beacon1.getDistance(), observableBeacon1.GetDistance());
+        assertEquals(beacon1.getDistance(), observableBeacon1.getDistance());
     }
     public void testCommpareTo(){
         Beacon beaconA = new AltBeacon.Builder().setId1("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A")
@@ -48,11 +48,11 @@ public class ObservableBeaconTest extends InstrumentationTestCase {
     public void testcollectData(){
         Beacon beacon3= new AltBeacon.Builder().setId1("DF7E1C79-43E9-44FF-886F-1D1F7DA6997B")
                 .setId2("1").setId3("1").setRssi(-20).setTxPower(-55).build();
-        observableBeacon1.SetBeacon(beacon3);
-        observableBeacon1.SetBeacon(beacon3);
-        observableBeacon1.SetBeacon(beacon3);
-        observableBeacon1.SetBeacon(beacon3);
-        assertEquals(observableBeacon1.GetRSSI(true),-27);
+        observableBeacon1.setBeacon(beacon3);
+        observableBeacon1.setBeacon(beacon3);
+        observableBeacon1.setBeacon(beacon3);
+        observableBeacon1.setBeacon(beacon3);
+        assertEquals(observableBeacon1.getRSSI(true),-27);
     }
 
 }
