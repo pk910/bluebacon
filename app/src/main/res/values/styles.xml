@@ -10,7 +10,8 @@
         <item name="colorPrimaryDark">#2B2B2B</item>
         <!--   theme UI controls like checkboxes and text fields -->
         <!--<item name="colorAccent">#FF4081</item>-->
-        <item name="colorAccent">#FF9D00</item>
+        <item name="colorAccent">#1271DE</item>
+
     </style>
 
 </resources>

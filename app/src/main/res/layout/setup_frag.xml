@@ -19,7 +19,8 @@
                 android:text="@string/clean_values"
                 android:textOff="@string/sw_off"
                 android:textOn="@string/sw_on"
-                android:id="@+id/swUseCleanedValues" />
+                android:id="@+id/swUseCleanedValues"
+                android:textColor="@color/colorWhite"/>
         </LinearLayout>
 
         <LinearLayout
@@ -35,6 +36,7 @@
                 android:text="@string/simple_mode"
                 android:textOff="@string/sw_off"
                 android:textOn="@string/sw_on"
-                android:id="@+id/swUseSimpleMode" />
+                android:id="@+id/swUseSimpleMode"
+                android:textColor="@color/colorWhite"/>
         </LinearLayout>
 </LinearLayout>

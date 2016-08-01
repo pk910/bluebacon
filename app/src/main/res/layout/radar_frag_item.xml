@@ -25,13 +25,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/uuid_title"/>
+                android:text="@string/uuid_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvUUID"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/uuid"/>
+                android:text="@string/uuid"
+                android:textColor="@color/colorWhite"/>
             </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -42,25 +44,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/major_id_title"/>
+                android:text="@string/major_id_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvMAJOR"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/major_id"/>
+                android:text="@string/major_id"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvMINOR_TITLE"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/minor_id_title"/>
+                android:text="@string/minor_id_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvMINOR"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/minor_id"/>
+                android:text="@string/minor_id"
+                android:textColor="@color/colorWhite"/>
             </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -71,25 +77,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/rssi_title"/>
+                android:text="@string/rssi_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvRSSI"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/rssi"/>
+                android:text="@string/rssi"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvDISTANCE_TITLE"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/distance_title"/>
+                android:text="@string/distance_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/distance"/>
+                android:text="@string/distance"
+                android:textColor="@color/colorWhite"/>
             </LinearLayout>
     </LinearLayout>
 </LinearLayout>

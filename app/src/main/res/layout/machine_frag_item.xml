@@ -21,13 +21,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/name_title"/>
+                android:text="@string/name_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/name"/>
+                android:text="@string/name"
+                android:textColor="@color/colorWhite"/>
             </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -38,13 +40,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/maintenance_title"/>
+                android:text="@string/maintenance_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvMaintenance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/maintenance"/>
+                android:text="@string/maintenance"
+                android:textColor="@color/colorWhite"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -55,13 +59,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/beacons_title"/>
+                android:text="@string/beacons_title"
+                android:textColor="@color/colorWhite"/>
             <TextView
                 android:id="@+id/tvBeacons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/beacons"/>
+                android:text="@string/beacons"
+                android:textColor="@color/colorWhite"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"

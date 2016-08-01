@@ -92,6 +92,14 @@ public class BeaconAdapter extends BaseAdapter{
         myViewHolder.tvMajor.setText(currentBeacon.getMajor());
         myViewHolder.tvMinor.setText(currentBeacon.getMinor());
 
+        /*
+        myViewHolder.tvUUID.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
+        myViewHolder.tvRSSI.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
+        myViewHolder.tvDistance.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
+        myViewHolder.tvMajor.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
+        myViewHolder.tvMinor.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
+        */
+
         return view;
     }
 
