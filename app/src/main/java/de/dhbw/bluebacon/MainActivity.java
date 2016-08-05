@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        final PagerAdapter adapter = new TabPageAdapter(getSupportFragmentManager());
+        final PagerAdapter adapter = new TabPageAdapter(getSupportFragmentManager(), getApplicationContext());
         viewPager.setAdapter(adapter);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(viewPager);
@@ -141,9 +141,12 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
 
         Log.d("DHBW MainActivity", "Sort by RSSI");
 
-        for(ObservableBeacon beacon : this.beacons) {
-            Log.d("DHBW MainActivity", beacon.getFullUUID() + " : " + beacon.getRSSI() + " : " + beacon.getDistance());
+        if(BuildConfig.DEBUG){
+            for(ObservableBeacon beacon : this.beacons) {
+                Log.d("DHBW MainActivity", beacon.getFullUUID() + " : " + beacon.getRSSI() + " : " + beacon.getDistance());
+            }
         }
+
     }
 
     /**

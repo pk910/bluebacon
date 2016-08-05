@@ -1,16 +1,22 @@
 package de.dhbw.bluebacon.view;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import de.dhbw.bluebacon.R;
+
 /**
  * TabPageAdapter class
  */
-public class TabPageAdapter extends FragmentStatePagerAdapter  {
+public class TabPageAdapter extends FragmentStatePagerAdapter {
 
-    public TabPageAdapter(FragmentManager fm) {
+    Context ctx;
+
+    public TabPageAdapter(FragmentManager fm, Context ctx) {
         super(fm);
+        this.ctx = ctx;
     }
 
     /**
@@ -54,11 +60,11 @@ public class TabPageAdapter extends FragmentStatePagerAdapter  {
     public CharSequence getPageTitle(int position) {
         switch (position){
             case 0:
-                return "Beacon Radar";
+                return this.ctx.getString(R.string.action_beacons);
             case 1:
-                return "Machine Radar";
+                return this.ctx.getString(R.string.action_machines);
             case 2:
-                return "Machine Setup";
+                return this.ctx.getString(R.string.action_settings);
             default:
                 break;
         }
