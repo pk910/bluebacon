@@ -120,9 +120,10 @@ public class BlueBaconManager implements IObservable {
 
             if(((MainActivity)boundConsumer).isNetworkAvailable()){
                 try {
-                    jsonStr = loader.getJSON("http://sevnlabs.net/bluebacon/machines", JSONLoader.GET);
+                    //jsonStr = loader.getJSON("http://sevnlabs.net/bluebacon/machines", JSONLoader.GET);
+                    jsonStr = "";
                     Log.d("Response: ", "> " + jsonStr);
-                    loader.saveLocalMachineData(jsonStr, (boundConsumer).getApplicationContext());
+                    //loader.saveLocalMachineData(jsonStr, (boundConsumer).getApplicationContext());
                 }catch(Exception ex) {
                     Log.d("Response: ", "null");
                     jsonStr = null;
