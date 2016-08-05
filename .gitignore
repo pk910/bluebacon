@@ -41,3 +41,7 @@ captures/
 *.jks
 
 .DS_Store
+
+# dz, 05.08.16
+.idea/vcs.xml
+.idea/inspectionProfiles/
