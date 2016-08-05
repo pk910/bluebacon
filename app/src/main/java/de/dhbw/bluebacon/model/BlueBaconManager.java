@@ -142,10 +142,9 @@ public class BlueBaconManager implements IObservable {
                     JSONObject jsonMachineWithBeacons = jsonMachines.getJSONObject(i);
                     JSONObject jsonMachine = jsonMachineWithBeacons.getJSONObject("Machine");
 
-                    Integer machineId = jsonMachine.getInt("id");
-                    Machine machine = new Machine(machineId, jsonMachine.getString("name"), jsonMachine.getString("description"), jsonMachine.getString("maintenance_state"), jsonMachine.getString("production_state"));
+                    Machine machine = new Machine(jsonMachine.getString("name"), jsonMachine.getString("description"), jsonMachine.getString("maintenance_state"), jsonMachine.getString("production_state"));
 
-                    machines.put(machineId, machine);
+                    machines.put(machines.keyAt(machines.size()-1) + 1, machine);
 
                     JSONArray jsonBeacons = jsonMachineWithBeacons.getJSONArray("Beacon");
 

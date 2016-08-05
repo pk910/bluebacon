@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Machine class
  */
@@ -19,7 +20,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param <X> Datatype of X coordinate
      * @param <Y> Datatype of Y coordinate
      */
-    public class Tuple<X, Y> {
+    private static class Tuple<X, Y> {
         protected X x;
         protected Y y;
 
@@ -37,13 +38,11 @@ public class Machine implements IObserver, Comparable<Machine> {
         }
     }
 
-    protected List<IObserver> observer;
     protected Map<String, ObservableBeacon> machineBeacons;
     protected Map<String, Tuple<Double, Double>> beaconPositions;
     protected Boolean useCleanedValues = true;
     protected Boolean useSimpleMode = false;
     protected Double simpleModeDistance = 2.;
-    protected Integer id;
     protected String name;
     protected String description;
     protected String maintenanceState;
@@ -52,17 +51,14 @@ public class Machine implements IObserver, Comparable<Machine> {
 
     /**
      * Constructor
-     * @param id ID of the machine
      * @param name Name of the machine
      * @param description Description of the machine
      * @param maintenanceState Current maintenance state of the machine
      * @param productionState Current production state of the machine
      */
-    public Machine(Integer id, String name, String description, String maintenanceState, String productionState) {
-        this.observer = new ArrayList<>();
+    public Machine(String name, String description, String maintenanceState, String productionState) {
         this.machineBeacons = new HashMap<>();
         this.beaconPositions = new HashMap<>();
-        this.id = id;
         this.name = name;
         this.description = description;
         this.maintenanceState = maintenanceState;
@@ -126,11 +122,11 @@ public class Machine implements IObserver, Comparable<Machine> {
         List<String> unavailableBeacons = new ArrayList<>();
         Map<String, ObservableBeacon> returnMap = new LinkedHashMap<>();
 
-        for(String uuid : this.machineBeacons.keySet()) {
-            if(this.machineBeacons.get(uuid) != null) {
-                availableBeacons.add(this.machineBeacons.get(uuid));
+        for(Map.Entry<String, ObservableBeacon> entry : this.machineBeacons.entrySet()){
+            if(entry.getValue() != null) {
+                availableBeacons.add(entry.getValue());
             }else{
-                unavailableBeacons.add(uuid);
+                unavailableBeacons.add(entry.getKey());
             }
         }
 
@@ -183,9 +179,9 @@ public class Machine implements IObserver, Comparable<Machine> {
     public List<ObservableBeacon> getTopBeacons() {
         List<ObservableBeacon> topBeacons = new ArrayList<>();
 
-        for(String uuid : this.machineBeacons.keySet()) {
-            if(this.machineBeacons.get(uuid) != null) {
-                topBeacons.add(this.machineBeacons.get(uuid));
+        for(Map.Entry<String, ObservableBeacon> entry : this.machineBeacons.entrySet()){
+            if(entry.getValue() != null) {
+                topBeacons.add(entry.getValue());
             }
         }
 
@@ -221,9 +217,9 @@ public class Machine implements IObserver, Comparable<Machine> {
     protected void recalculate() {
         List<ObservableBeacon> availableBeacons = new ArrayList<>();
 
-        for(String uuid : this.machineBeacons.keySet()) {
-            if(this.machineBeacons.get(uuid) != null) {
-                availableBeacons.add(this.machineBeacons.get(uuid));
+        for(Map.Entry<String, ObservableBeacon> entry : this.machineBeacons.entrySet()) {
+            if (entry.getValue() != null) {
+                availableBeacons.add(entry.getValue());
             }
         }
 
@@ -318,9 +314,9 @@ public class Machine implements IObserver, Comparable<Machine> {
         int avg = 0;
         int count = 0;
 
-        for(String uuid : this.machineBeacons.keySet()) {
-            if(this.machineBeacons.get(uuid) != null) {
-                avg += this.machineBeacons.get(uuid).getRSSI();
+        for(Map.Entry<String, ObservableBeacon> entry : this.machineBeacons.entrySet()){
+            if(entry.getValue() != null) {
+                avg += entry.getValue().getRSSI();
                 count++;
             }
         }
@@ -355,8 +351,6 @@ public class Machine implements IObserver, Comparable<Machine> {
      * a positive integer if this instance is greater than
      * {@code another}; 0 if this instance has the same order as
      * {@code another}.
-     * @throws ClassCastException if {@code another} cannot be converted into something
-     *                            comparable to {@code this} instance.
      */
     @Override
     public int compareTo(@NonNull Machine another) {
@@ -364,6 +358,29 @@ public class Machine implements IObserver, Comparable<Machine> {
             return (int) (this.getDistance() * 100) - (int) (another.getDistance() * 100);
         else
             return this.getRSSI() - another.getRSSI();
+    }
+
+    /**
+     * Checks if this object is equal to the specified object.
+     *
+     * @param obj the object to compare to this instance.
+     * @return boolean {@code obj};
+     * @throws ClassCastException if {@code another} cannot be converted into something
+     *                            comparable to {@code this} instance.
+     */
+    @Override
+    public boolean equals(Object obj) throws ClassCastException {
+        return obj != null && getClass() == obj.getClass() && this.compareTo((Machine) obj) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        // We can do this as long as Machine is never used as a key for a
+        // Map object such as HashSet, LinkedHashSet, HashMap, Hashtable, or WeakHashMap,
+        // or in any other situation where hashCode() will be called. The theoretic definition
+        // is that whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
+        // We provide out own implementation of equals though, so we shouldn't use Object.hashCode().
+        throw new UnsupportedOperationException("hashCode() not supported.");
     }
 
 }

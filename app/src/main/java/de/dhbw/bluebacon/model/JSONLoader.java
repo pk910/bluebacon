@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 //import org.apache.http.HttpEntity;
 //import org.apache.http.HttpResponse;
@@ -99,7 +100,7 @@ public class JSONLoader {
      */
     public void saveLocalMachineData(String json, Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("cache.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("cache.txt", Context.MODE_PRIVATE), StandardCharsets.UTF_8);
             outputStreamWriter.write(json);
             outputStreamWriter.close();
         }
@@ -119,7 +120,7 @@ public class JSONLoader {
             InputStream inputStream = context.openFileInput("cache.txt");
 
             if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
@@ -129,6 +130,7 @@ public class JSONLoader {
                 }
 
                 inputStream.close();
+                bufferedReader.close();
                 ret = stringBuilder.toString();
             }
         }

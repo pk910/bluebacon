@@ -214,8 +214,8 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         llBeacons_Wrapper.removeAllViews();
 
         // iterate through all mapped beacons and add text view
-        for (String uuid : this.mappedBeacons.keySet()) {
-            ObservableBeacon beacon = this.mappedBeacons.get(uuid);
+        for(Map.Entry<String, ObservableBeacon> entry : this.mappedBeacons.entrySet()){
+            ObservableBeacon beacon = entry.getValue();
 
             // outer wrapper for a single beacon info & icon
             LinearLayout llBeacon_Wrapper = new LinearLayout(this.context);
@@ -246,7 +246,7 @@ public class MachineAdapter extends BaseExpandableListAdapter {
 
             // add uuid info
             llUUID.addView(createTextView(this.context.getString(R.string.uuid_title)));
-            llUUID.addView(createTextView(uuid));
+            llUUID.addView(createTextView(entry.getKey()));
 
             // add major / minor & rssi if object not null (active)
             if(beacon == null) {

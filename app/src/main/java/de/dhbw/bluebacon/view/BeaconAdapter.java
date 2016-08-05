@@ -103,7 +103,7 @@ public class BeaconAdapter extends BaseAdapter{
         return view;
     }
 
-    private class MyViewHolder{
+    private static class MyViewHolder{
         TextView tvUUID, tvRSSI, tvDistance,tvMinor,tvMajor;
         ImageView ivIcon;
 

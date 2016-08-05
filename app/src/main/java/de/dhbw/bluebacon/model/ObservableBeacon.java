@@ -1,5 +1,7 @@
 package de.dhbw.bluebacon.model;
 
+import android.support.annotation.NonNull;
+
 import org.altbeacon.beacon.Beacon;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
 
     protected static final Integer AVGCOUNT = 5;
 
-    protected String uuid;
+    protected final String uuid;
     protected List<IObserver> observer;
     protected Beacon altBeacon;
     protected Date lastUpdate;
@@ -110,17 +112,13 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * Getter for last update datetime of ObservableBeacon
      * @return Datetime of last update
      */
-    public Date getLastUpdate() {
-        return this.lastUpdate;
-    }
+    public Date getLastUpdate() { return new Date(this.lastUpdate.getTime()); }
 
     /**
      * Getter for full UUID of beacon
      * @return Full UUID of beacon
      */
-    public String getFullUUID() {
-        return this.uuid;
-    }
+    public String getFullUUID() { return this.uuid; }
 
     /**
      * Getter for beacon rssi
@@ -219,12 +217,33 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
      * a positive integer if this instance is greater than
      * {@code another}; 0 if this instance has the same order as
      * {@code another}.
+     */
+    @Override
+    public int compareTo(@NonNull ObservableBeacon another) {
+        return (this.getRSSI() - another.getRSSI()) * -1;
+    }
+
+    /**
+     * Checks if this object is equal to the specified object.
+     *
+     * @param obj the object to compare to this instance.
+     * @return boolean {@code obj};
      * @throws ClassCastException if {@code another} cannot be converted into something
      *                            comparable to {@code this} instance.
      */
     @Override
-    public int compareTo(ObservableBeacon another) {
-        return (this.getRSSI() - another.getRSSI()) * -1;
+    public boolean equals(Object obj) throws ClassCastException {
+        return obj != null && getClass() == obj.getClass() && this.compareTo((ObservableBeacon) obj) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        // We can do this as long as Machine is never used as a key for a
+        // Map object such as HashSet, LinkedHashSet, HashMap, Hashtable, or WeakHashMap,
+        // or in any other situation where hashCode() will be called. The theoretic definition
+        // is that whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
+        // We provide out own implementation of equals though, so we shouldn't use Object.hashCode().
+        throw new UnsupportedOperationException("hashCode() not supported.");
     }
 
 }
