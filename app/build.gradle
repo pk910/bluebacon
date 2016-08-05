@@ -13,14 +13,16 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    lintOptions {
-        abortOnError false
     }
 }
 
@@ -48,9 +50,9 @@ task findbugsMain(type: FindBugs, dependsOn: assembleDebug) {
     classpath = files()
 
     reports {
-        xml.enabled = false
+        xml.enabled = true
         xml.withMessages = true
-        html.enabled = true
+        html.enabled = false
     }
 }
 
@@ -66,27 +68,11 @@ task pmdMain (type: Pmd, dependsOn: assembleDebug) {
 
     reports {
         xml.enabled = true
-        html.enabled = false
-    }
-}
-
-task pmdMainHTML (type: Pmd, dependsOn: assembleDebug) {
-
-    description 'Run pmd'
-    group 'verification'
-
-    ignoreFailures = true // Do not stop build on errors (so CI can evaluate the results)
-
-    ruleSets = [ "java-basic", "java-strings", "java-braces", "java-design", "java-unusedcode" ]
-    source = fileTree('src/main/java')
-
-    reports {
-        xml.enabled = false
         html.enabled = true
     }
 }
 
 check.doLast {
     project.tasks.getByName("findbugsMain").execute()
-    project.tasks.getByName("pmdMainHTML").execute()
+    project.tasks.getByName("pmdMain").execute()
 }
