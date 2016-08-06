@@ -15,29 +15,6 @@ import java.util.Map;
  */
 public class Machine implements IObserver, Comparable<Machine> {
 
-    /**
-     * Tupel class for coordinates
-     * @param <X> Datatype of X coordinate
-     * @param <Y> Datatype of Y coordinate
-     */
-    private static class Tuple<X, Y> {
-        protected X x;
-        protected Y y;
-
-        public Tuple(X x, Y y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public X getX() {
-            return this.x;
-        }
-
-        public Y getY() {
-            return this.y;
-        }
-    }
-
     protected Map<String, ObservableBeacon> machineBeacons;
     protected Map<String, Tuple<Double, Double>> beaconPositions;
     protected Boolean useCleanedValues = true;
@@ -123,10 +100,10 @@ public class Machine implements IObserver, Comparable<Machine> {
         Map<String, ObservableBeacon> returnMap = new LinkedHashMap<>();
 
         for(Map.Entry<String, ObservableBeacon> entry : this.machineBeacons.entrySet()){
-            if(entry.getValue() != null) {
-                availableBeacons.add(entry.getValue());
-            }else{
+            if(entry.getValue() == null) {
                 unavailableBeacons.add(entry.getKey());
+            }else{
+                availableBeacons.add(entry.getValue());
             }
         }
 
@@ -234,6 +211,7 @@ public class Machine implements IObserver, Comparable<Machine> {
                 break;
             default:
                 this.distance = this.distanceCalculation(availableBeacons);
+                break;
         }
     }
 
@@ -321,10 +299,11 @@ public class Machine implements IObserver, Comparable<Machine> {
             }
         }
 
-        if(count < 0)
-            return Math.round((float)avg / count);
-        else
+        if(count < 0) {
+            return Math.round((float) avg / count);
+        } else {
             return 0;
+        }
     }
 
     /**
@@ -354,10 +333,11 @@ public class Machine implements IObserver, Comparable<Machine> {
      */
     @Override
     public int compareTo(@NonNull Machine another) {
-        if(!this.useSimpleMode)
-            return (int) (this.getDistance() * 100) - (int) (another.getDistance() * 100);
-        else
+        if(this.useSimpleMode) {
             return this.getRSSI() - another.getRSSI();
+        } else {
+            return (int) (this.getDistance() * 100) - (int) (another.getDistance() * 100);
+        }
     }
 
     /**

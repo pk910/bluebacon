@@ -74,13 +74,15 @@ public class BeaconAdapter extends BaseAdapter{
     @Override
     public View getView(int i, View view, ViewGroup parent) {
         MyViewHolder myViewHolder;
-        if(view == null){
-            view = inflater.inflate(R.layout.radar_frag_item,parent,false);
-            myViewHolder = new MyViewHolder(view);
-            view.setTag(myViewHolder);
+        View newView;
 
+        if(view == null){
+            newView = inflater.inflate(R.layout.radar_frag_item,parent,false);
+            myViewHolder = new MyViewHolder(newView);
+            newView.setTag(myViewHolder);
         } else {
-            myViewHolder = (MyViewHolder) view.getTag();
+            newView = view;
+            myViewHolder = (MyViewHolder) newView.getTag();
         }
 
         ObservableBeacon currentBeacon = (ObservableBeacon) getItem(i);
@@ -92,22 +94,14 @@ public class BeaconAdapter extends BaseAdapter{
         myViewHolder.tvMajor.setText(currentBeacon.getMajor());
         myViewHolder.tvMinor.setText(currentBeacon.getMinor());
 
-        /*
-        myViewHolder.tvUUID.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
-        myViewHolder.tvRSSI.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
-        myViewHolder.tvDistance.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
-        myViewHolder.tvMajor.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
-        myViewHolder.tvMinor.setTextColor(this.context.getResources().getColor(R.color.colorWhite));
-        */
-
-        return view;
+        return newView;
     }
 
     private static class MyViewHolder{
         TextView tvUUID, tvRSSI, tvDistance,tvMinor,tvMajor;
         ImageView ivIcon;
 
-        private MyViewHolder(View item) {
+        public MyViewHolder(View item) {
             tvUUID = (TextView) item.findViewById(R.id.tvUUID);
             tvRSSI = (TextView) item.findViewById(R.id.tvRSSI);
             tvDistance = (TextView) item.findViewById(R.id.tvDistance);
@@ -115,14 +109,5 @@ public class BeaconAdapter extends BaseAdapter{
             tvMinor = (TextView) item.findViewById(R.id.tvMINOR);
             tvMajor = (TextView) item.findViewById(R.id.tvMAJOR);
         }
-    }
-
-    /**
-     * Fill list view with default data if no items are passed
-     * @return boolean
-     */
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty();
     }
 }

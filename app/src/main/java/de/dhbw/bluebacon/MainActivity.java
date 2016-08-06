@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import org.altbeacon.beacon.BeaconConsumer;
 
@@ -68,20 +67,6 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(viewPager);
 
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position)
-            {
-            }
-            @Override
-            public void onPageScrollStateChanged(int state)
-            {
-            }
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-            {
-            }
-        });
     }
 
     /**
@@ -94,16 +79,6 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    /**
-     * Handle Action Bar Items
-     * @param item MenuItem
-     * @return boolean
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -191,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
             }
         }
         // refresh Beacon fragment
-        if(currentFragment != null && currentFragment instanceof BeaconRadar ){
+        if(currentFragment instanceof BeaconRadar ){
             Log.d("DHBW FragmentActivity", "Found Fragment");
             final Fragment finalCurrentFragment = currentFragment;
             runOnUiThread(new Runnable() {
@@ -203,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
 
         }
         // refresh Machine fragment
-        if(currentFragment != null && currentFragment instanceof MachineRadar){
+        if(currentFragment instanceof MachineRadar){
             Log.d("DHBW FragmentActivity", "Found Fragment");
             final Fragment finalCurrentFragment = currentFragment;
             runOnUiThread(new Runnable() {

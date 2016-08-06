@@ -127,8 +127,12 @@ public class MachineAdapter extends BaseExpandableListAdapter {
      */
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+        View newConvertView;
+
         if(convertView == null){
-            convertView = this.inflater.inflate(R.layout.machine_frag_item,parent,false);
+            newConvertView = this.inflater.inflate(R.layout.machine_frag_item,parent,false);
+        } else {
+            newConvertView = convertView;
         }
 
         // define text views and linear layout for distance
@@ -136,10 +140,10 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         LinearLayout llDistance;
 
         // find text views and linear layout for distance in xml
-        tvName = (TextView) convertView.findViewById(R.id.tvName);
-        tvMaintenance = (TextView) convertView.findViewById(R.id.tvMaintenance);
-        tvBeacons = (TextView) convertView.findViewById(R.id.tvBeacons);
-        llDistance = (LinearLayout) convertView.findViewById(R.id.llDistance);
+        tvName = (TextView) newConvertView.findViewById(R.id.tvName);
+        tvMaintenance = (TextView) newConvertView.findViewById(R.id.tvMaintenance);
+        tvBeacons = (TextView) newConvertView.findViewById(R.id.tvBeacons);
+        llDistance = (LinearLayout) newConvertView.findViewById(R.id.llDistance);
 
         // get current machine object and set values
         Machine currentMachine = (Machine) getGroup(groupPosition);
@@ -172,7 +176,7 @@ public class MachineAdapter extends BaseExpandableListAdapter {
             llDistance.addView(createTextView(Double.toString(currentMachine.getDistance())));
         }
 
-        return convertView;
+        return newConvertView;
     }
 
     /**
@@ -186,8 +190,12 @@ public class MachineAdapter extends BaseExpandableListAdapter {
      */
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        View newConvertView;
+
         if(convertView == null){
-            convertView = this.inflater.inflate(R.layout.machine_frag_detail,parent,false);
+            newConvertView = this.inflater.inflate(R.layout.machine_frag_detail,parent,false);
+        } else {
+            newConvertView = convertView;
         }
 
         // define text views
@@ -195,9 +203,9 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         LinearLayout llBeacons_Wrapper;
 
         // find text views in xml
-        tvProduction = (TextView) convertView.findViewById(R.id.tvProduction);
-        tvDescription = (TextView) convertView.findViewById(R.id.tvDescription);
-        llBeacons_Wrapper = (LinearLayout) convertView.findViewById(R.id.llBeacons_Wrapper);
+        tvProduction = (TextView) newConvertView.findViewById(R.id.tvProduction);
+        tvDescription = (TextView) newConvertView.findViewById(R.id.tvDescription);
+        llBeacons_Wrapper = (LinearLayout) newConvertView.findViewById(R.id.llBeacons_Wrapper);
 
         // get current machine object and set values
         Machine currentMachine = (Machine) getGroup(groupPosition);
@@ -276,7 +284,7 @@ public class MachineAdapter extends BaseExpandableListAdapter {
             llBeacons_Wrapper.addView(llBeacon_Wrapper);
         }
 
-        return convertView;
+        return newConvertView;
     }
 
     /**
@@ -288,15 +296,6 @@ public class MachineAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return false;
-    }
-
-    /**
-     * Fill list view with default data if no items are passed
-     * @return boolean
-     */
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty();
     }
 
     /**

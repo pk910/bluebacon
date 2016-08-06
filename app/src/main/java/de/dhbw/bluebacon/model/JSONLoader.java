@@ -31,13 +31,6 @@ public class JSONLoader {
     public static final int POST = 2;
 
     /**
-     * Constructor
-     */
-    public JSONLoader() {
-
-    }
-
-    /**
      * Get JSON without params
      * @param url Address to load
      * @param method HTTP Method (GET / POST)

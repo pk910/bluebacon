@@ -32,6 +32,27 @@ import de.dhbw.bluebacon.MainActivity;
  */
 public class BlueBaconManager implements IObservable {
 
+    protected static final Integer FOREGROUNDSCANPERIOD = 150;
+    protected static final Integer DELETEBEACONAFTER = 10000;
+    protected static final String LOGPREFIX = "DHBW BlueBaconManager";
+
+    protected BeaconConsumer boundConsumer;
+    protected BeaconManager beaconManager;
+    protected SparseArray<Machine> machines;
+    protected Map<String, Machine> beaconUuidMachineMapping;
+    protected Map<String, ObservableBeacon> observableBeacons;
+    protected Region region = new Region("region", null, null, null);
+    protected List<IObserver> observers;
+    protected BlueBaconManager self = this;
+    protected Boolean useCleanedValues = true;
+    protected Boolean useSimpleMode = false;
+    protected Double simpleModeDistance = 2.;
+
+    /**
+     * RangeNotifier is triggered if beacons are discovered
+     */
+    protected RangeNotifier rangeNotifier = new BlueBaconRangeNotifier();
+
     /**
      * Implementation of AltBeacon RangeNotifier
      */
@@ -131,7 +152,7 @@ public class BlueBaconManager implements IObservable {
             }
 
             if(jsonStr == null) {
-                jsonStr = loader.loadLocalMachineData((boundConsumer).getApplicationContext());
+                jsonStr = loader.loadLocalMachineData(boundConsumer.getApplicationContext());
             }
 
             try {
@@ -167,32 +188,12 @@ public class BlueBaconManager implements IObservable {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            if (pDialog.isShowing())
+            if (pDialog.isShowing()) {
                 pDialog.dismiss();
+            }
         }
 
     }
-
-    protected static final Integer FOREGROUNDSCANPERIOD = 150;
-    protected static final Integer DELETEBEACONAFTER = 10000;
-    protected static final String LOGPREFIX = "DHBW BlueBaconManager";
-
-    protected BeaconConsumer boundConsumer;
-    protected BeaconManager beaconManager;
-    protected SparseArray<Machine> machines;
-    protected Map<String, Machine> beaconUuidMachineMapping;
-    protected Map<String, ObservableBeacon> observableBeacons;
-    protected Region region = new Region("region", null, null, null);
-    protected List<IObserver> observers;
-    protected BlueBaconManager self = this;
-    protected Boolean useCleanedValues = true;
-    protected Boolean useSimpleMode = false;
-    protected Double simpleModeDistance = 2.;
-
-    /**
-     * RangeNotifier is triggered if beacons are discovered
-     */
-    protected RangeNotifier rangeNotifier = new BlueBaconRangeNotifier();
 
     /**
      * Constructor
@@ -288,16 +289,18 @@ public class BlueBaconManager implements IObservable {
      * Set beacon manager to background mode
      */
     public void pause() {
-        if (beaconManager.isBound(this.boundConsumer))
+        if (beaconManager.isBound(this.boundConsumer)) {
             beaconManager.setBackgroundMode(true);
+        }
     }
 
     /**
      * Set beacon manager to foreground mode
      */
     public void resume() {
-        if (beaconManager.isBound(this.boundConsumer))
+        if (beaconManager.isBound(this.boundConsumer)) {
             beaconManager.setBackgroundMode(false);
+        }
     }
 
     /**
