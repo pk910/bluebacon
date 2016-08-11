@@ -20,7 +20,8 @@
                 android:textOff="@string/sw_off"
                 android:textOn="@string/sw_on"
                 android:id="@+id/swUseCleanedValues"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite"
+                android:theme="@style/Switch_Light_Slider" />
         </LinearLayout>
 
         <LinearLayout
@@ -37,6 +38,7 @@
                 android:textOff="@string/sw_off"
                 android:textOn="@string/sw_on"
                 android:id="@+id/swUseSimpleMode"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite"
+                android:theme="@style/Switch_Light_Slider"/>
         </LinearLayout>
 </LinearLayout>
