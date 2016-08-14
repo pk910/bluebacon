@@ -40,6 +40,14 @@
     <string name="simple_mode">Use simple mode:</string>
     <string name="sw_off">Off</string>
     <string name="sw_on">On</string>
+    <string name="preferred_srv_location">Preferred server location:</string>
+    <string name="local_srv">Local</string>
+    <string name="remote_srv">Remote</string>
+    <string name="update">Update</string>
+    <string name="update_desc">Update Beacons &amp; Machines:</string>
 
+    <string name="contacting_server">Contacting configuration server ...</string>
+    <string name="found_local_server">Found local server</string>
+    <string name="no_server_found">No local and/or remote servers could be reached.</string>
     <string formatted="false" name="beacons_placeholder">%d / %d</string>
 </resources>

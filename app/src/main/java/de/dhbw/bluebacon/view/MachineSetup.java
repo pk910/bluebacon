@@ -1,18 +1,25 @@
 package de.dhbw.bluebacon.view;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.Switch;
 
 import de.dhbw.bluebacon.MainActivity;
 import de.dhbw.bluebacon.R;
 import de.dhbw.bluebacon.model.BlueBaconManager;
+import de.dhbw.bluebacon.model.DiscoveryBroadcaster;
+import de.dhbw.bluebacon.model.DiscoveryListener;
+import de.dhbw.bluebacon.model.JSONLoader;
 
 /**
  * Machine Setup class
@@ -23,15 +30,25 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
     BlueBaconManager blueBaconManager;
     Switch swUseCleanedValues;
     Switch swUseSimpleMode;
+    RadioButton rdRemoteServer;
+    RadioButton rdLocalServer;
+
+    public static final String LOG_TAG = "DHBW MachineSetup";
 
     /**
      * Attach MainActivity to Fragment
-     * @param activity MainActivity
+     * @param context Context
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mainActivity = (MainActivity) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity a;
+
+        if (context instanceof Activity){
+            a=(Activity) context;
+            mainActivity = (MainActivity) a;
+        }
     }
 
     /**
@@ -71,6 +88,43 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         // attach a listener to check for changes in state
         swUseSimpleMode.setOnCheckedChangeListener(this);
 
+        // find radio buttons for server location preference
+        rdRemoteServer = (RadioButton) machineSetup.findViewById(R.id.rdRemoteServer);
+        rdLocalServer = (RadioButton) machineSetup.findViewById(R.id.rdLocalServer);
+        // get value from shared prefs and change the radio buttons to the correct state
+        boolean preferRemoteServer = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
+        rdRemoteServer.setChecked(preferRemoteServer);
+        rdLocalServer.setChecked(!preferRemoteServer);
+        // attach listeners to check for changes in state
+        View.OnClickListener rdListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // we don't need to check whether the radio button is checked (;)) because when the user clicked on it, it IS checked.
+
+                // update preference value
+                mainActivity.prefs.edit().putBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), v.getId() == R.id.rdRemoteServer).commit();
+            }
+        };
+        rdRemoteServer.setOnClickListener(rdListener);
+        rdLocalServer.setOnClickListener(rdListener);
+
+        final Button btTestUdp = (Button) machineSetup.findViewById(R.id.btTestUdp);
+        btTestUdp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.progressShow(getString(R.string.contacting_server));
+                boolean preferRemoteServer = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
+                if(preferRemoteServer){
+                    // try hard-coded hostname first
+                    new JSONLoader(mainActivity).execute();
+                } else {
+                    // try a discovery via UDP broadcast first
+                    new DiscoveryListener(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new DiscoveryBroadcaster(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+            }
+        });
+
         return machineSetup;
     }
 
@@ -85,12 +139,12 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         switch (buttonView.getId()) {
             case R.id.swUseCleanedValues:
                 blueBaconManager.setValueCleaning(isChecked);
-                Log.d("DHBW BlueBaconManager", "use cleaned value is set to "+blueBaconManager.getValueCleaning());
+                Log.d(LOG_TAG, "use cleaned value is set to "+blueBaconManager.getValueCleaning());
                 break;
 
             case R.id.swUseSimpleMode:
                 blueBaconManager.setSimpleMode(isChecked);
-                Log.d("DHBW BlueBaconManager", "use simple mode is set to "+blueBaconManager.getSimpleMode());
+                Log.d(LOG_TAG, "use simple mode is set to "+blueBaconManager.getSimpleMode());
                 break;
 
             default:

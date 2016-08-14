@@ -1,139 +1,150 @@
 package de.dhbw.bluebacon.model;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.net.ConnectException;
+import java.util.ArrayList;
 
-//import org.apache.http.HttpEntity;
-//import org.apache.http.HttpResponse;
-//import org.apache.http.NameValuePair;
-//import org.apache.http.client.entity.UrlEncodedFormEntity;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.client.methods.HttpPost;
-//import org.apache.http.client.utils.URLEncodedUtils;
-//import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.http.util.EntityUtils;
+import de.dhbw.bluebacon.MainActivity;
+import de.dhbw.bluebacon.R;
 
 /**
  * Loader for data loading
  */
-public class JSONLoader {
+public class JSONLoader extends AsyncTask<String, Void, Void> {
 
-    static String response = null;
-    public static final int GET = 1;
-    public static final int POST = 2;
+    protected Context context;
+    public static final String SERVER_URL = "http://example.com";
+    public static final String LOG_TAG = "DHBW JSONLoader";
+    private boolean success;
+    private boolean try_discovery;
 
-    /**
-     * Get JSON without params
-     * @param url Address to load
-     * @param method HTTP Method (GET / POST)
-     * @return JSON String
-     * @throws IOException
-     */
-//    public String getJSON(String url, int method) throws IOException {
-//        return this.getJSON(url, method, null);
-//    }
+    public JSONLoader(Context context){
+        this.context = context;
+        this.success = false;
+        this.try_discovery = true;
+    }
 
-    /**
-     * Get JSON with params
-     * @param url Address to load
-     * @param method HTTP Method (GET / POST)
-     * @param params Parameter
-     * @return JSON String
-     * @throws IOException
-     */
-//    public String getJSON(String url, int method,
-//                                  List<NameValuePair> params) throws IOException {
-//        // http client
-//        DefaultHttpClient httpClient = new DefaultHttpClient();
-//        HttpEntity httpEntity = null;
-//        HttpResponse httpResponse = null;
-//        String address = url;
-//
-//        // Checking http request method type
-//        if (method == POST) {
-//            HttpPost httpPost = new HttpPost(address);
-//            httpPost.setHeader("Accept", "application/json");
-//            // adding post params
-//            if (params != null) {
-//                httpPost.setEntity(new UrlEncodedFormEntity(params));
-//            }
-//
-//            httpResponse = httpClient.execute(httpPost);
-//
-//        } else if (method == GET) {
-//            // appending params to url
-//            if (params != null) {
-//                String paramString = URLEncodedUtils
-//                        .format(params, "utf-8");
-//                address += "?" + paramString;
-//            }
-//            HttpGet httpGet = new HttpGet(address);
-//            httpGet.setHeader("Accept", "application/json");
-//
-//            httpResponse = httpClient.execute(httpGet);
-//
-//        }
-//        httpEntity = httpResponse.getEntity();
-//        response = EntityUtils.toString(httpEntity);
-//
-//        return response;
-//    }
+    public JSONLoader(Context context, boolean try_discovery){
+        this.context = context;
+        this.success = false;
+        this.try_discovery = try_discovery;
+    }
 
-    /**
-     * Saves received date locally
-     * @param json Received JSON String
-     */
-    public void saveLocalMachineData(String json, Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("cache.txt", Context.MODE_PRIVATE), StandardCharsets.UTF_8);
-            outputStreamWriter.write(json);
-            outputStreamWriter.close();
+    @Override
+    protected Void doInBackground(String... params){
+        String url = null;
+        if(params.length > 0){
+            url = params[0];
         }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+        String result = getJSON(url);
+        try {
+            Tuple<BeaconData[], Machine[]> parsed = parseJSON(result);
+            save(parsed.getX(), parsed.getY());
+        } catch(JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void params) {
+        ((MainActivity)context).getBlueBaconManager().loadMachines();
+        boolean preferRemoteServer = ((MainActivity)context).prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
+        if(success){
+            Log.i(LOG_TAG, "Success.");
+            ((MainActivity)context).progressHide();
+        } else {
+            // if we prefer the remote server and couldn't contact it, try local server discovery now.
+            // don't do it though if we prefer the remote server, which failed, then discovered a local server,
+            // which nevertheless failed later in the HTTP stage (this would possibly create an infinite loop)
+            if(preferRemoteServer && try_discovery){
+                Log.i(LOG_TAG, "Could not contact remote server, trying to discover local server...");
+                new DiscoveryListener(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new DiscoveryBroadcaster(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
+                Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
+                ((MainActivity)context).progressHide();
+            }
         }
     }
 
     /**
-     * Loads locally saved machine data
-     * @return JSON String
+     * Get JSON without params
+     * @param url Address to load beacons from
      */
-    public String loadLocalMachineData(Context context) {
-        String ret = "";
-
-        try {
-            InputStream inputStream = context.openFileInput("cache.txt");
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                }
-
-                inputStream.close();
-                bufferedReader.close();
-                ret = stringBuilder.toString();
+    private String getJSON(String url) {
+        if(url == null){
+            url = SERVER_URL;
+        }
+        URLRequest request = new URLRequest(url);
+        try{
+            request.exec();
+            if(request.getHTTPStatus() == URLRequest.HTTP_OK){
+                success = true;
+                return request.getResult();
+            } else {
+                Log.e(LOG_TAG, "Server returned status code != " + URLRequest.HTTP_OK + ".");
+                return "";
             }
-        }
-        catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
+        } catch(ConnectException e){
+            Log.e(LOG_TAG, "Could not connect to: '" + url + "'");
+            e.printStackTrace();
+        } catch(IOException e){
+            e.printStackTrace();
         }
 
-        return ret;
+        return "";
+    }
+
+    private Tuple<BeaconData[], Machine[]> parseJSON(String json) throws JSONException {
+        ArrayList<BeaconData> beacons = new ArrayList<>();
+        ArrayList<Machine> machines = new ArrayList<>();
+
+        JSONObject jo = new JSONObject(json);
+        JSONArray machinesJSON = jo.getJSONArray("machines");
+        JSONArray beaconsJSON = jo.getJSONArray("beacons");
+
+        for(int i = 0; i < beaconsJSON.length(); i++){
+            beacons.add(new BeaconData(
+                    beaconsJSON.getJSONObject(i).getString("UUID"),
+                    beaconsJSON.getJSONObject(i).getString("Major"),
+                    beaconsJSON.getJSONObject(i).getString("Minor"),
+                    beaconsJSON.getJSONObject(i).getDouble("posX"),
+                    beaconsJSON.getJSONObject(i).getDouble("posY"),
+                    beaconsJSON.getJSONObject(i).getInt("MachineID")
+            ));
+        }
+        //TODO: implement description / maintenance status / production status correctly in server
+        for(int i = 0; i < machinesJSON.length(); i++){
+            machines.add(new Machine(
+                    machinesJSON.getJSONObject(i).getInt("MachineID"),
+                    machinesJSON.getJSONObject(i).getString("Name"),
+                    machinesJSON.getJSONObject(i).getString("Status"),
+                    "",
+                    ""
+            ));
+        }
+
+        BeaconData[] beaconsResult = new BeaconData[beacons.size()];
+        Machine[] machinesResult = new Machine[machines.size()];
+        return new Tuple<>(beacons.toArray(beaconsResult), machines.toArray(machinesResult));
+    }
+
+    private void save(BeaconData[] beacons, Machine[] machines){
+        ((MainActivity)context).getBeaconDB().clearBeacons();
+        ((MainActivity)context).getBeaconDB().clearMachines();
+        ((MainActivity)context).getBeaconDB().saveBeacons(beacons);
+        ((MainActivity)context).getBeaconDB().saveMachines(machines);
     }
 
 }

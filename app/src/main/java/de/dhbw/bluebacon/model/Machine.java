@@ -20,6 +20,7 @@ public class Machine implements IObserver, Comparable<Machine> {
     protected Boolean useCleanedValues = true;
     protected Boolean useSimpleMode = false;
     protected Double simpleModeDistance = 2.;
+    protected int id;
     protected String name;
     protected String description;
     protected String maintenanceState;
@@ -33,9 +34,10 @@ public class Machine implements IObserver, Comparable<Machine> {
      * @param maintenanceState Current maintenance state of the machine
      * @param productionState Current production state of the machine
      */
-    public Machine(String name, String description, String maintenanceState, String productionState) {
+    public Machine(int id, String name, String description, String maintenanceState, String productionState) {
         this.machineBeacons = new HashMap<>();
         this.beaconPositions = new HashMap<>();
+        this.id = id;
         this.name = name;
         this.description = description;
         this.maintenanceState = maintenanceState;
@@ -56,6 +58,14 @@ public class Machine implements IObserver, Comparable<Machine> {
      */
     public Boolean getValueCleaning() {
         return this.useCleanedValues;
+    }
+
+    /**
+     * Getter for machine id
+     * @return int Machine id
+     */
+    public int getId() {
+        return this.id;
     }
 
     /**
@@ -359,7 +369,7 @@ public class Machine implements IObserver, Comparable<Machine> {
         // Map object such as HashSet, LinkedHashSet, HashMap, Hashtable, or WeakHashMap,
         // or in any other situation where hashCode() will be called. The theoretic definition
         // is that whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
-        // We provide out own implementation of equals though, so we shouldn't use Object.hashCode().
+        // We provide our own implementation of equals() though, so we shouldn't use Object.hashCode().
         throw new UnsupportedOperationException("hashCode() not supported.");
     }
 

@@ -16,7 +16,7 @@ public class MachineTest extends InstrumentationTestCase{
      private Machine machine = new Machine(1, "Name", "Beschreibung", "-", "-");
      private BeaconConsumer boundComsumer = new MainActivity();
      private IObserver observer = (IObserver)boundComsumer;
-     private ArrayList<IObserver> ArrayObserver = new ArrayList<IObserver>();
+     private ArrayList<IObserver> ArrayObserver = new ArrayList<>();
 
 
 

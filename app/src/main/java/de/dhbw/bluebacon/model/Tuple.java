@@ -1,9 +1,9 @@
 package de.dhbw.bluebacon.model;
 
 /**
- * Tupel class for coordinates
- * @param <X> Datatype of X coordinate
- * @param <Y> Datatype of Y coordinate
+ * Tuple class for coordinates
+ * @param <X> Data type of X coordinate
+ * @param <Y> Data type of Y coordinate
  */
 public class Tuple<X, Y> {
     protected final X x;

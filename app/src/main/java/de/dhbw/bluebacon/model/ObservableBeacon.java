@@ -200,7 +200,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
     /**
      * Checks if the observer is already subscribed
      *
-     * @param observer
+     * @param observer IObserver
      * @return True if observer is already subscribed
      */
     @Override
@@ -242,7 +242,7 @@ public class ObservableBeacon implements IObservable, Comparable<ObservableBeaco
         // Map object such as HashSet, LinkedHashSet, HashMap, Hashtable, or WeakHashMap,
         // or in any other situation where hashCode() will be called. The theoretic definition
         // is that whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
-        // We provide out own implementation of equals though, so we shouldn't use Object.hashCode().
+        // We provide our own implementation of equals() though, so we shouldn't use Object.hashCode().
         throw new UnsupportedOperationException("hashCode() not supported.");
     }
 

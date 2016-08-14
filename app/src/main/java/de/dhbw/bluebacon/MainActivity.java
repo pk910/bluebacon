@@ -1,6 +1,8 @@
 package de.dhbw.bluebacon;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.dhbw.bluebacon.model.BeaconDB;
 import de.dhbw.bluebacon.model.BlueBaconManager;
 import de.dhbw.bluebacon.model.IObservable;
 import de.dhbw.bluebacon.model.IObserver;
@@ -35,6 +38,28 @@ import de.dhbw.bluebacon.view.TabPageAdapter;
  */
 public class MainActivity extends AppCompatActivity implements IObserver, BeaconConsumer {
 
+    public static final String LOG_TAG = "DHBW MainActivity";
+
+    public SharedPreferences prefs;
+    public enum PrefKeys {
+        SERVER_LOCATION_PRIORITY("SERVER_LOCATION_PRIORITY"),
+        SERVER_ADDR("SERVER_ADDR"),
+        DB_SCHEMA_VERSION("DB_SCHEMA_VERSION");
+
+        private final String text;
+
+        PrefKeys(final String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    private ProgressDialog progress;
+    protected BeaconDB beaconDB;
     protected BlueBaconManager blueBaconManager;
     protected List<ObservableBeacon> beacons;
     protected List<Machine> machines;
@@ -55,14 +80,21 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         toolbar.setLogo(R.mipmap.ic_launcher);
         setSupportActionBar(toolbar);
 
-        this.beacons = new ArrayList<>();
-        this.machines = new ArrayList<>();
-        this.blueBaconManager = new BlueBaconManager(this);
-        this.blueBaconManager.subscribe(this);
+        progress = new ProgressDialog(this);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setProgress(0);
+        progress.setCancelable(false);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        prefs = this.getSharedPreferences(getApplicationContext().getPackageName(), Context.MODE_PRIVATE);
+        beacons = new ArrayList<>();
+        machines = new ArrayList<>();
+        beaconDB = new BeaconDB(this);
+        blueBaconManager = new BlueBaconManager(this);
+        blueBaconManager.subscribe(this);
+
+        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        final PagerAdapter adapter = new TabPageAdapter(getSupportFragmentManager(), getApplicationContext());
+        PagerAdapter adapter = new TabPageAdapter(getSupportFragmentManager(), getApplicationContext());
         viewPager.setAdapter(adapter);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(viewPager);
@@ -104,11 +136,11 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
 
         refreshViews();
 
-        Log.d("DHBW MainActivity", "Sort by RSSI");
+        Log.d(LOG_TAG, "Sort by RSSI");
 
         if(BuildConfig.DEBUG){
             for(ObservableBeacon beacon : this.beacons) {
-                Log.d("DHBW MainActivity", beacon.getFullUUID() + " : " + beacon.getRSSI() + " : " + beacon.getDistance());
+                Log.d(LOG_TAG, beacon.getFullUUID() + " : " + beacon.getRSSI() + " : " + beacon.getDistance());
             }
         }
 
@@ -167,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
         // refresh Beacon fragment
         if(currentFragment instanceof BeaconRadar ){
-            Log.d("DHBW FragmentActivity", "Found Fragment");
+            Log.d(LOG_TAG, "Found Fragment");
             final Fragment finalCurrentFragment = currentFragment;
             runOnUiThread(new Runnable() {
                 @Override
@@ -179,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
         // refresh Machine fragment
         if(currentFragment instanceof MachineRadar){
-            Log.d("DHBW FragmentActivity", "Found Fragment");
+            Log.d(LOG_TAG, "Found Fragment");
             final Fragment finalCurrentFragment = currentFragment;
             runOnUiThread(new Runnable() {
                 @Override
@@ -200,6 +232,14 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     }
 
     /**
+     * Get BeaconDB object
+     * @return BeaconDB
+     */
+    public BeaconDB getBeaconDB() {
+        return this.beaconDB;
+    }
+
+    /**
      * Check if Network is available
      * @return boolean
      */
@@ -208,6 +248,15 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
                 = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    public void progressShow(String progressText){
+        progress.setMessage(progressText);
+        progress.show();
+    }
+
+    public void progressHide(){
+        progress.hide();
     }
 
 }

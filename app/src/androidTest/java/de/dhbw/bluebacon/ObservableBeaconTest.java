@@ -9,9 +9,8 @@ import java.util.Locale;
 
 import de.dhbw.bluebacon.model.ObservableBeacon;
 
-/**
- * Created by David on 28.07.2015.
- */
+
+
 public class ObservableBeaconTest extends InstrumentationTestCase {
     Beacon beacon1;
     ObservableBeacon observableBeacon1;
@@ -25,6 +24,7 @@ public class ObservableBeaconTest extends InstrumentationTestCase {
     public void testGetUUID() {
         assertEquals("DF7E1C79-43E9-44FF-886F-1D1F7DA6997A-1-1", observableBeacon1.getFullUUID().toUpperCase(Locale.US));
     }
+
     public void testGetRSSI(){
         assertEquals(-55, observableBeacon1.getRSSI());
     }

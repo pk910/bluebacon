@@ -13,9 +13,6 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.service.RangedBeacon;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.dhbw.bluebacon.BuildConfig;
 import de.dhbw.bluebacon.MainActivity;
 
 /**
@@ -34,7 +32,7 @@ public class BlueBaconManager implements IObservable {
 
     protected static final Integer FOREGROUNDSCANPERIOD = 150;
     protected static final Integer DELETEBEACONAFTER = 10000;
-    protected static final String LOGPREFIX = "DHBW BlueBaconManager";
+    protected static final String LOG_TAG = "DHBW BlueBaconManager";
 
     protected BeaconConsumer boundConsumer;
     protected BeaconManager beaconManager;
@@ -64,7 +62,7 @@ public class BlueBaconManager implements IObservable {
          */
         @Override
         public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-            Log.d(LOGPREFIX, "--- RangeNotifier triggered ---");
+            Log.d(LOG_TAG, "--- RangeNotifier triggered ---");
 
             Date minTime = new Date();
             minTime.setTime(minTime.getTime() - DELETEBEACONAFTER); //erst wenn Beacon 2 Sekunden vom Radar verschwunden ist löschen
@@ -77,7 +75,7 @@ public class BlueBaconManager implements IObservable {
                     observableBeacon = observableBeacons.get(uuid);
                     observableBeacon.setBeacon(beacon);
                 }else{
-                    Log.d(LOGPREFIX, "Previosly unknown beacon '" + uuid + "' now in Range");
+                    Log.d(LOG_TAG, "Previosly unknown beacon '" + uuid + "' now in Range");
                     observableBeacon = new ObservableBeacon(beacon, useCleanedValues);
                     observableBeacons.put(uuid, observableBeacon);
                 }
@@ -86,7 +84,7 @@ public class BlueBaconManager implements IObservable {
                     Machine machine = beaconUuidMachineMapping.get(uuid);
 
                     if(!observableBeacon.isSubscribed(machine)) {
-                        Log.d(LOGPREFIX, "Beacon '" + uuid + "' subscribed to machine '" + machine.getName() + "'");
+                        Log.d(LOG_TAG, "Beacon '" + uuid + "' subscribed to machine '" + machine.getName() + "'");
                         observableBeacon.subscribe(machine);
                     }
                 }
@@ -96,7 +94,7 @@ public class BlueBaconManager implements IObservable {
 
             for(ObservableBeacon beacon : observableBeacons.values()) {
                 if(beacon.getLastUpdate().before(minTime)) {
-                    Log.d(LOGPREFIX, "Beacon '" + beacon.getFullUUID() + "' out of Range");
+                    Log.d(LOG_TAG, "Beacon '" + beacon.getFullUUID() + "' out of Range");
                     deleteList.add(beacon.getFullUUID());
                 }
             }
@@ -136,50 +134,22 @@ public class BlueBaconManager implements IObservable {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String jsonStr = null;
-            JSONLoader loader = new JSONLoader();
+            // this now only accesses the local SQLite DB
+            ArrayList<BeaconData> beaconData = new ArrayList<>();
+            beaconData.addAll(((MainActivity)boundConsumer).getBeaconDB().getBeacons());
 
-            if(((MainActivity)boundConsumer).isNetworkAvailable()){
-                try {
-                    //jsonStr = loader.getJSON("http://sevnlabs.net/bluebacon/machines", JSONLoader.GET);
-                    jsonStr = "";
-                    Log.d("Response: ", "> " + jsonStr);
-                    //loader.saveLocalMachineData(jsonStr, (boundConsumer).getApplicationContext());
-                }catch(Exception ex) {
-                    Log.d("Response: ", "null");
-                    jsonStr = null;
-                }
-            }
+            ArrayList<Machine> machineData = new ArrayList<>();
+            machineData.addAll(((MainActivity)boundConsumer).getBeaconDB().getMachines());
 
-            if(jsonStr == null) {
-                jsonStr = loader.loadLocalMachineData(boundConsumer.getApplicationContext());
-            }
 
-            try {
-                JSONObject jsonObj = new JSONObject(jsonStr);
-                JSONArray jsonMachines = jsonObj.getJSONArray("machines");
-
-                for(int i = 0; i < jsonMachines.length(); i++) {
-                    JSONObject jsonMachineWithBeacons = jsonMachines.getJSONObject(i);
-                    JSONObject jsonMachine = jsonMachineWithBeacons.getJSONObject("Machine");
-
-                    Machine machine = new Machine(jsonMachine.getString("name"), jsonMachine.getString("description"), jsonMachine.getString("maintenance_state"), jsonMachine.getString("production_state"));
-
-                    machines.put(machines.keyAt(machines.size()-1) + 1, machine);
-
-                    JSONArray jsonBeacons = jsonMachineWithBeacons.getJSONArray("Beacon");
-
-                    for(int b = 0; b < jsonBeacons.length(); b++) {
-                        JSONObject jsonBeacon = jsonBeacons.getJSONObject(b);
-                        String uuid = jsonBeacon.getString("uuid");
-                        Double posX = jsonBeacon.getDouble("posx");
-                        Double posY = jsonBeacon.getDouble("posy");
-                        machine.registerBeacon(uuid, posX, posY);
-                        beaconUuidMachineMapping.put(uuid, machine);
+            for(Machine machine : machineData) {
+                machines.put(machines.keyAt(machines.size() - 1) + 1, machine);
+                for(BeaconData beacon : beaconData){
+                    if(beacon.machineid == machine.getId()){
+                        machine.registerBeacon(beacon.uuid, beacon.posX, beacon.posY);
+                        beaconUuidMachineMapping.put(beacon.uuid, machine);
                     }
                 }
-            }catch(JSONException ex) {
-                Log.d("JSONException", ex.getMessage());
             }
 
             return null;
@@ -310,8 +280,10 @@ public class BlueBaconManager implements IObservable {
         try {
             this.beaconManager.startRangingBeaconsInRegion(this.region);
         }catch(Exception ex) {
-            Log.d(LOGPREFIX, "--- Error while starting ranging ---");
-            Log.d(LOGPREFIX, ex.getMessage());
+            if(BuildConfig.DEBUG) {
+                Log.d(LOG_TAG, "--- Error while starting ranging ---");
+                Log.d(LOG_TAG, ex.getMessage());
+            }
         }
     }
 
@@ -322,15 +294,17 @@ public class BlueBaconManager implements IObservable {
         try {
             this.beaconManager.stopRangingBeaconsInRegion(this.region);
         }catch(Exception ex) {
-            Log.d(LOGPREFIX, "--- Error while stopping ranging ---");
-            Log.d(LOGPREFIX, ex.getMessage());
+            if(BuildConfig.DEBUG) {
+                Log.d(LOG_TAG, "--- Error while stopping ranging ---");
+                Log.d(LOG_TAG, ex.getMessage());
+            }
         }
     }
 
     /**
      * Load machines from backend
      */
-    private void loadMachines() {
+    public void loadMachines() {
         new GetMachines().execute();
     }
 
