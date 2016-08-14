@@ -13,6 +13,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import de.dhbw.bluebacon.BuildConfig;
 
@@ -22,9 +23,9 @@ public class DiscoveryBroadcaster extends AsyncTask<Void, Void, Void> {
     public static final int SCAN_VIA_BROADCAST = 0;
     public static final String LOG_TAG = "DHBW Broadcaster";
 
-    public static byte[] last_random_bytes = new byte[32];
+    private static byte[] last_random_bytes = new byte[32];
 
-    private Context context;
+    private final Context context;
 
     public DiscoveryBroadcaster(Context context){
         this.context = context;
@@ -90,8 +91,13 @@ public class DiscoveryBroadcaster extends AsyncTask<Void, Void, Void> {
         int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
         //Log.v("DHBW", String.format("ipAddr: %d, netmask: %d, broadcast: %d", dhcp.ipAddress, dhcp.netmask, broadcast));
         byte[] quads = new byte[4];
-        for (int k = 0; k < 4; k++)
+        for (int k = 0; k < 4; k++) {
             quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
+        }
         return InetAddress.getByAddress(quads);
+    }
+
+    public static byte[] getLastRandomBytes(){
+        return Arrays.copyOf(DiscoveryBroadcaster.last_random_bytes, DiscoveryBroadcaster.last_random_bytes.length);
     }
 }

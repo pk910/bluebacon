@@ -25,7 +25,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
     public static final String SERVER_URL = "http://example.com";
     public static final String LOG_TAG = "DHBW JSONLoader";
     private boolean success;
-    private boolean try_discovery;
+    private final boolean try_discovery;
 
     public JSONLoader(Context context){
         this.context = context;
@@ -83,10 +83,8 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
      * @param url Address to load beacons from
      */
     private String getJSON(String url) {
-        if(url == null){
-            url = SERVER_URL;
-        }
-        URLRequest request = new URLRequest(url);
+        String urlString = url == null ? SERVER_URL : url;
+        URLRequest request = new URLRequest(urlString);
         try{
             request.exec();
             if(request.getHTTPStatus() == URLRequest.HTTP_OK){
@@ -140,6 +138,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         return new Tuple<>(beacons.toArray(beaconsResult), machines.toArray(machinesResult));
     }
 
+    @SuppressWarnings("PMD.UseVarargs")
     private void save(BeaconData[] beacons, Machine[] machines){
         ((MainActivity)context).getBeaconDB().clearBeacons();
         ((MainActivity)context).getBeaconDB().clearMachines();

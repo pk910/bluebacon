@@ -304,7 +304,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Load machines from backend
      */
-    public void loadMachines() {
+    public final void loadMachines() {
         new GetMachines().execute();
     }
 

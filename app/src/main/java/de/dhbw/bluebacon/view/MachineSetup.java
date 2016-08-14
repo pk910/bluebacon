@@ -108,8 +108,8 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         rdRemoteServer.setOnClickListener(rdListener);
         rdLocalServer.setOnClickListener(rdListener);
 
-        final Button btTestUdp = (Button) machineSetup.findViewById(R.id.btTestUdp);
-        btTestUdp.setOnClickListener(new View.OnClickListener() {
+        final Button btUpdateData = (Button) machineSetup.findViewById(R.id.btUpdateData);
+        btUpdateData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mainActivity.progressShow(getString(R.string.contacting_server));

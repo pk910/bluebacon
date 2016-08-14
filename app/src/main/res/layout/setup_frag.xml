@@ -50,12 +50,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/serverPreference"
             android:text="@string/preferred_srv_location"
             android:textColor="@color/colorWhite"/>
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentEnd="true"
+            android:id="@+id/serverPreference">
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -85,13 +87,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/btUpdateData"
             android:text="@string/update_desc"
             android:textColor="@color/colorWhite"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btTestUdp"
+            android:id="@+id/btUpdateData"
             android:layout_alignParentEnd="true"
             android:text="@string/update"/>
     </RelativeLayout>

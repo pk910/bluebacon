@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -30,7 +32,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
 
     Context context;
     DatagramSocket socket;
-    private final String HMAC_SECRET = "eFqqDnFNeLLJ";
+    private static final String HMAC_SECRET = "eFqqDnFNeLLJ";
 
     public DiscoveryListener(Context context){
         this.context = context;
@@ -71,7 +73,8 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
         String ipaddr = Formatter.formatIpAddress(dhcp.ipAddress);
         try {
             //Keep a socket open to listen to all UDP traffic that is destined for this port
-            socket = new DatagramSocket(DiscoveryBroadcaster.UDP_PORT, InetAddress.getByName("0.0.0.0"));
+            InetAddress wildCard = new InetSocketAddress(0).getAddress(); // 0.0.0.0, e.g. all interfaces
+            socket = new DatagramSocket(DiscoveryBroadcaster.UDP_PORT, wildCard);
             socket.setBroadcast(true);
             socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
 
@@ -93,13 +96,14 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
             }
 
             Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret = new SecretKeySpec(HMAC_SECRET.getBytes(),"HmacSHA256");
+            SecretKeySpec secret = new SecretKeySpec(HMAC_SECRET.getBytes(StandardCharsets.UTF_8),"HmacSHA256");
             mac.init(secret);
-            byte[] digest = mac.doFinal(DiscoveryBroadcaster.last_random_bytes);
+            byte[] digest = mac.doFinal(DiscoveryBroadcaster.getLastRandomBytes());
             if(!Arrays.equals(packet.getData(), digest)){
                 Log.i(LOG_TAG, "Got invalid identifier");
                 return null;
-            } else if(!packet.getAddress().isSiteLocalAddress()) {
+            }
+            if(!packet.getAddress().isSiteLocalAddress()) {
                 Log.i(LOG_TAG, "Packet did not come from local address!");
                 return null;
             }

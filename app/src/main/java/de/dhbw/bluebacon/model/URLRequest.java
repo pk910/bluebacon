@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import de.dhbw.bluebacon.BuildConfig;
 
@@ -15,7 +16,7 @@ public class URLRequest {
     public static final String LOG_TAG = "URLRequest";
     public static final int HTTP_OK = 200;
 
-    private String urlString;
+    private final String urlString;
     private int http_status;
     private String result;
 
@@ -38,12 +39,12 @@ public class URLRequest {
 
         http_status = connection.getResponseCode();
         String line;
-        InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+        InputStreamReader isr = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
         BufferedReader reader = new BufferedReader(isr);
         while ((line = reader.readLine()) != null)
         {
             sb.append(line);
-            sb.append("\n");
+            sb.append('\n');
         }
 
         isr.close();
@@ -54,14 +55,16 @@ public class URLRequest {
     }
 
     public String getResult(){
-        if(result == null)
+        if(result == null) {
             throw new RuntimeException("Must call exec() before fetching result!");
+        }
         return result;
     }
 
     public int getHTTPStatus(){
-        if(http_status == 0)
+        if(http_status == 0) {
             throw new RuntimeException("Must call exec() before fetching HTTP status!");
+        }
         return http_status;
     }
 }

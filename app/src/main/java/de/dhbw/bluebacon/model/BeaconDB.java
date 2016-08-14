@@ -16,8 +16,8 @@ public class BeaconDB {
 
     private File dbFile;
     private SQLiteDatabase sqlite_db;
-    private final int codedSchemaVersion = 1;
-    private Context context;
+    private static final int codedSchemaVersion = 1;
+    private final Context context;
 
 
     public BeaconDB(Context context){
@@ -77,7 +77,7 @@ public class BeaconDB {
         stmt.close();
     }
 
-    public void saveMachines(Machine[] machines){
+    public void saveMachines(Machine... machines){
         for(Machine machine : machines){
             saveMachine(machine);
         }
@@ -151,7 +151,7 @@ public class BeaconDB {
         stmt.close();
     }
 
-    public void saveBeacons(BeaconData[] beacons){
+    public void saveBeacons(BeaconData... beacons){
         for(BeaconData beacon : beacons){
             saveBeacon(beacon);
         }
@@ -167,10 +167,10 @@ public class BeaconDB {
         }
         rs.close();
         if(count > 0){
-            Log.v(LOG_TAG, "deleteMachine: id \"" + beaconId + "\" found, deleting..");
+            Log.v(LOG_TAG, "deleteBeacon: id \"" + beaconId + "\" found, deleting..");
             retVal = true;
         } else {
-            Log.v(LOG_TAG, "deleteMachine: id \"" + beaconId + "\" not found.");
+            Log.v(LOG_TAG, "deleteBeacon: id \"" + beaconId + "\" not found.");
         }
 
         sqlite_db.delete("machines", "machineid=?", new String[]{String.valueOf(beaconId)});
