@@ -73,7 +73,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
         String ipaddr = Formatter.formatIpAddress(dhcp.ipAddress);
         try {
             //Keep a socket open to listen to all UDP traffic that is destined for this port
-            InetAddress wildCard = new InetSocketAddress(0).getAddress(); // 0.0.0.0, e.g. all interfaces
+            InetAddress wildCard = new InetSocketAddress(0).getAddress(); // 0.0.0.0, i.e. all interfaces
             socket = new DatagramSocket(DiscoveryBroadcaster.UDP_PORT, wildCard);
             socket.setBroadcast(true);
             socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
@@ -95,6 +95,11 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
                 Log.i(LOG_TAG, "Packet with " + packet.getData().length + " bytes data received from: " + packet.getAddress().getHostAddress());
             }
 
+            // the idea is that the server has to hash our random value such that the client accepts it.
+            // this allows clients to associate server responses with their own requests, which gets
+            // important in scenarios where multiple clients/servers are performing discovery at the same time.
+            // the HMAC secret merely serves as a way to tie discovery responses to discovery requests a little bit more tightly.
+            // the HMAC secret should be considered public and is not intended as a means for providing authentication.
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret = new SecretKeySpec(HMAC_SECRET.getBytes(StandardCharsets.UTF_8),"HmacSHA256");
             mac.init(secret);
@@ -121,9 +126,9 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
 
     public static int packIpv4Addr(byte[] bytes){
         int val = 0;
-        for (int i = 0; i < bytes.length; i++) {
+        for (int i : bytes) {
             val <<= 8;
-            val |= bytes[i] & 0xff;
+            val |= i & 0xff;
         }
         return val;
     }
