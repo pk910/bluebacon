@@ -67,20 +67,21 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
         }
     }
 
+    // Discovery process
+    // #################
+    // 1) the server listens (always)
+    // 2) discovery starts
+    // 3) we listen
+    // 4) we broadcast
+    // 5) when the server gets our packet, it sends a corresponding unicast packet to us
+    // 6) we check the packet
+    // 7) if successful or timeout, we stop listening, discovery ends
+    // the idea is that the server has to hash our random value such that the client accepts it.
+    // this allows clients to associate server responses with their own requests, which gets
+    // important in scenarios where multiple clients/servers are performing discovery at the same time.
+    // the HMAC secret merely serves as a way to tie discovery responses to discovery requests a little bit more tightly.
+    // the HMAC secret should be considered public and is not intended as a means for providing authentication.
     public String listen(){
-        // 1) the server listens (always)
-        // 2) discovery starts
-        // 3) we listen
-        // 4) we broadcast
-        // 5) then the server sends a unicast packet to us
-        // 6) we check the packet
-        // 7) if successful or timeout, we stop listening, discovery ends
-        // the idea is that the server has to hash our random value such that the client accepts it.
-        // this allows clients to associate server responses with their own requests, which gets
-        // important in scenarios where multiple clients/servers are performing discovery at the same time.
-        // the HMAC secret merely serves as a way to tie discovery responses to discovery requests a little bit more tightly.
-        // the HMAC secret should be considered public and is not intended as a means for providing authentication.
-
         WifiManager wifi = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
         DhcpInfo dhcp = wifi.getDhcpInfo();
         String ipaddr = Formatter.formatIpAddress(dhcp.ipAddress);

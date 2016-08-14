@@ -45,6 +45,8 @@ public class BeaconDB {
                     "uuid TEXT NOT NULL, " +
                     "major INTEGER NOT NULL, " +
                     "minor INTEGER NOT NULL, " +
+                    "posX REAL, " +
+                    "posY REAL, " +
                     "machineid INTEGER NOT NULL);");
             sqlite_db.execSQL("CREATE TABLE machines (" +
                     "machineid INTEGER PRIMARY KEY, " +
