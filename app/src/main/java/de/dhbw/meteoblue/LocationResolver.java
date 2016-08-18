@@ -32,6 +32,8 @@ public class LocationResolver implements LocationListener {
 
     public void addLocationListener(LocationListener listener) {
         locationListeners.add(listener);
+        if(currentBestLocation != null)
+            listener.onLocationChanged(currentBestLocation);
     }
 
     public void delLocationListener(LocationListener listener) {

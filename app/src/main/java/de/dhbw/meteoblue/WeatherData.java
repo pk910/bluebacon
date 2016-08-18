@@ -31,7 +31,7 @@ public class WeatherData {
     private String dataDate;
     private int dataCode;
     private String dataCodeDesc;
-    private long dataCodeDayPicId, dataCodeNightPicId;
+    private int dataCodeDayPicId, dataCodeNightPicId;
     private int dataUVIndex;
     private double dataTempMax, dataTempMin, dataTempAvg;
     private double dataFeltTempMax, dataFeltTempMin;
@@ -85,8 +85,9 @@ public class WeatherData {
                             data.dataCodeNightPicId = AppContext.getResources().getIdentifier(dataCodeNightPic, "drawable", AppContext.getPackageName());
 
                             String dataCodeDescRes = String.format("meteoblue_code%02d", pictocode);
-                            int dataCodeDescResId = AppContext.getResources().getIdentifier(dataCodeNightPic, "string", AppContext.getPackageName());
-                            data.dataCodeDesc = AppContext.getString(dataCodeDescResId);
+                            int dataCodeDescResId = AppContext.getResources().getIdentifier(dataCodeDescRes, "string", AppContext.getPackageName());
+                            if(dataCodeDescResId != 0)
+                                data.dataCodeDesc = AppContext.getString(dataCodeDescResId);
                         } else if (key .equalsIgnoreCase("uvindex"))
                             data.dataUVIndex = values.getInt(i);
                         else if (key.equalsIgnoreCase("temperature_max"))
@@ -139,11 +140,11 @@ public class WeatherData {
         return dataCodeDesc;
     }
 
-    public long getCodeDayPic() {
+    public int getCodeDayPic() {
         return dataCodeDayPicId;
     }
 
-    public long getCodeNightPic() {
+    public int getCodeNightPic() {
         return dataCodeNightPicId;
     }
 
