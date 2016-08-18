@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19dp"
+        android:id="@+id/relativeLayout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Weather"
+            android:id="@+id/textView4"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:textColor="@color/colorWhite" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:id="@+id/weatherData"
+            android:layout_marginStart="6dp"
+            android:layout_alignTop="@+id/weatherImage"
+            android:layout_toEndOf="@+id/weatherImage"
+            android:textColor="@color/colorWhite" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/weatherImage"
+            android:layout_below="@+id/textView4"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:id="@+id/weatherData2"
+            android:layout_marginStart="6dp"
+            android:layout_alignTop="@+id/weatherImage2"
+            android:layout_toEndOf="@+id/weatherImage2"
+            android:textColor="@color/colorWhite" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/weatherImage2"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:id="@+id/weatherData3"
+            android:layout_marginStart="6dp"
+            android:layout_alignTop="@+id/weatherImage3"
+            android:layout_toEndOf="@+id/weatherImage3"
+            android:textColor="@color/colorWhite" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/weatherImage3"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+
+</LinearLayout>

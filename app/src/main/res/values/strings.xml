@@ -5,6 +5,7 @@
     <string name="action_beacons">Beacon Radar</string>
     <string name="action_machines">Machine Radar</string>
     <string name="action_settings">Settings</string>
+    <string name="action_weather">Weather</string>
     <string name="no_data">No data</string>
 
     <!-- radar_frag_item strings -->

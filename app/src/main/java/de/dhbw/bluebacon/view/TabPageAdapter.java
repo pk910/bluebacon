@@ -36,6 +36,9 @@ public class TabPageAdapter extends FragmentStatePagerAdapter {
             case 2:
                 //Fragment for setup page
                 return new MachineSetup();
+            case 3:
+                //Fragment for setup page
+                return new WeatherTest();
             default:
                 break;
         }
@@ -49,7 +52,7 @@ public class TabPageAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         //Number of Tabs
-        return 3;
+        return 4;
     }
 
     /**
@@ -65,6 +68,8 @@ public class TabPageAdapter extends FragmentStatePagerAdapter {
                 return this.ctx.getString(R.string.action_machines);
             case 2:
                 return this.ctx.getString(R.string.action_settings);
+            case 3:
+                return this.ctx.getString(R.string.action_weather);
             default:
                 break;
         }

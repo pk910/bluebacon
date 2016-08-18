@@ -289,4 +289,9 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
             // other requests?
         }
     }
+
+
+    public LocationResolver getLocationResolver() {
+        return locationResolver;
+    }
 }
