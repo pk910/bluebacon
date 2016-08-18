@@ -3,6 +3,7 @@ package de.dhbw.bluebacon;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import de.dhbw.bluebacon.model.ObservableBeacon;
 import de.dhbw.bluebacon.view.BeaconRadar;
 import de.dhbw.bluebacon.view.MachineRadar;
 import de.dhbw.bluebacon.view.TabPageAdapter;
+import de.dhbw.meteoblue.LocationResolver;
 
 
 /**
@@ -39,6 +41,8 @@ import de.dhbw.bluebacon.view.TabPageAdapter;
 public class MainActivity extends AppCompatActivity implements IObserver, BeaconConsumer {
 
     public static final String LOG_TAG = "DHBW MainActivity";
+
+    public static final int PERMISSIONS_REQUEST_LOCATION_RESOLVER = 1;
 
     public SharedPreferences prefs;
     public enum PrefKeys {
@@ -63,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected BlueBaconManager blueBaconManager;
     protected List<ObservableBeacon> beacons;
     protected List<Machine> machines;
+    private LocationResolver locationResolver;
 
     public List<ObservableBeacon> getBeacons() {
         return beacons;
@@ -91,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         beaconDB = new BeaconDB(this);
         blueBaconManager = new BlueBaconManager(this);
         blueBaconManager.subscribe(this);
+
+        locationResolver = new LocationResolver(this);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -168,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected void onResume() {
         super.onResume();
         this.blueBaconManager.resume();
+        locationResolver.startLocationListener();
     }
 
     /**
@@ -177,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected void onPause() {
         super.onPause();
         this.blueBaconManager.pause();
+        locationResolver.stopLocationListener();
     }
 
     /**
@@ -259,4 +268,23 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         progress.hide();
     }
 
+    /**
+     * Android 5 permission management
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_LOCATION_RESOLVER: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    locationResolver.startLocationListener();
+                } else {
+                    // permission denied
+                }
+                return;
+            }
+            // other requests?
+        }
+    }
 }

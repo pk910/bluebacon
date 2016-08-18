@@ -50,4 +50,42 @@
     <string name="found_local_server">Found local server</string>
     <string name="no_server_found">No local and/or remote servers could be reached.</string>
     <string formatted="false" name="beacons_placeholder">%d / %d</string>
+
+    <!-- meteoblue strings -->
+    <string name="meteoblue_code01">Clear, cloudless sky</string>
+    <string name="meteoblue_code02">Clear, few cirrus</string>
+    <string name="meteoblue_code03">Clear with cirrus</string>
+    <string name="meteoblue_code04">Clear with few low clouds</string>
+    <string name="meteoblue_code05">Clear with few low clouds and few cirrus</string>
+    <string name="meteoblue_code06">Clear with few low clouds and cirrus</string>
+    <string name="meteoblue_code07">Partly cloudy</string>
+    <string name="meteoblue_code08">Partly cloudy and few cirrus</string>
+    <string name="meteoblue_code09">Partly cloudy and cirrus</string>
+    <string name="meteoblue_code10">Mixed with some thunderstorm clouds possible</string>
+    <string name="meteoblue_code11">Mixed with few cirrus with some thunderstorm clouds possible</string>
+    <string name="meteoblue_code12">Mixed with cirrus and some thunderstorm clouds possible</string>
+    <string name="meteoblue_code13">Clear but hazy</string>
+    <string name="meteoblue_code14">Clear but hazy with few cirrus</string>
+    <string name="meteoblue_code15">Clear but hazy with cirrus</string>
+    <string name="meteoblue_code16">Fog/low stratus clouds</string>
+    <string name="meteoblue_code17">Fog/low stratus clouds with few cirrus</string>
+    <string name="meteoblue_code18">Fog/low stratus clouds with cirrus</string>
+    <string name="meteoblue_code19">Mostly cloudy</string>
+    <string name="meteoblue_code20">Mostly cloudy and few cirrus</string>
+    <string name="meteoblue_code21">Mostly cloudy and cirrus</string>
+    <string name="meteoblue_code22">Overcast</string>
+    <string name="meteoblue_code23">Overcast with rain</string>
+    <string name="meteoblue_code24">Overcast with snow</string>
+    <string name="meteoblue_code25">Overcast with heavy rain</string>
+    <string name="meteoblue_code26">Overcast with heavy snow</string>
+    <string name="meteoblue_code27">Rain, thunderstorms likely</string>
+    <string name="meteoblue_code28">Light rain, thunderstorms likely</string>
+    <string name="meteoblue_code29">Storm with heavy snow</string>
+    <string name="meteoblue_code30">Heavy rain, thunderstorms likely</string>
+    <string name="meteoblue_code31">Mixed with showers</string>
+    <string name="meteoblue_code32">Mixed with snow showers</string>
+    <string name="meteoblue_code33">Overcast with light rain</string>
+    <string name="meteoblue_code34">Overcast with light snow</string>
+    <string name="meteoblue_code35">Overcast with mixture of snow and rain</string>
+
 </resources>
