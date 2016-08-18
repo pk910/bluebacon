@@ -33,6 +33,7 @@ import de.dhbw.bluebacon.view.BeaconRadar;
 import de.dhbw.bluebacon.view.MachineRadar;
 import de.dhbw.bluebacon.view.TabPageAdapter;
 import de.dhbw.meteoblue.LocationResolver;
+import de.dhbw.meteoblue.WeatherData;
 
 
 /**
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         blueBaconManager.subscribe(this);
 
         locationResolver = new LocationResolver(this);
+        WeatherData.SetAppContext(this);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);

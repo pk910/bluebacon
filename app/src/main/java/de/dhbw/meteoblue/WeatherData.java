@@ -1,5 +1,8 @@
 package de.dhbw.meteoblue;
 
+import android.content.Context;
+import android.content.res.Resources;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +13,12 @@ import java.util.Iterator;
  * Created by pk910 on 18.08.2016.
  */
 public class WeatherData {
+    private static Context AppContext;
+
+    public static void SetAppContext(Context context) {
+        AppContext = context;
+    }
+
     private class WeatherDataCode {
         private int code;
         private String desc;
@@ -21,7 +30,8 @@ public class WeatherData {
 
     private String dataDate;
     private int dataCode;
-    private String dataCodeDesc, dataCodeDayPic, dataCodeNightPic;
+    private String dataCodeDesc;
+    private long dataCodeDayPicId, dataCodeNightPicId;
     private int dataUVIndex;
     private double dataTempMax, dataTempMin, dataTempAvg;
     private double dataFeltTempMax, dataFeltTempMin;
@@ -67,9 +77,16 @@ public class WeatherData {
                         else if (key.equalsIgnoreCase("pictocode")) {
                             int pictocode = values.getInt(i);
                             data.dataCode = pictocode;
-                            data.dataCodeDayPic = String.format("meteoblue_%02d_day", pictocode);
-                            data.dataCodeNightPic = String.format("meteoblue_%02d_night", pictocode);
-                            data.dataCodeDesc = String.format("meteoblue_code%02d", pictocode);
+
+                            String dataCodeDayPic = String.format("meteoblue_%02d_day", pictocode);
+                            data.dataCodeDayPicId = AppContext.getResources().getIdentifier(dataCodeDayPic, "drawable", AppContext.getPackageName());
+
+                            String dataCodeNightPic = String.format("meteoblue_%02d_night", pictocode);
+                            data.dataCodeNightPicId = AppContext.getResources().getIdentifier(dataCodeNightPic, "drawable", AppContext.getPackageName());
+
+                            String dataCodeDescRes = String.format("meteoblue_code%02d", pictocode);
+                            int dataCodeDescResId = AppContext.getResources().getIdentifier(dataCodeNightPic, "string", AppContext.getPackageName());
+                            data.dataCodeDesc = AppContext.getString(dataCodeDescResId);
                         } else if (key .equalsIgnoreCase("uvindex"))
                             data.dataUVIndex = values.getInt(i);
                         else if (key.equalsIgnoreCase("temperature_max"))
@@ -122,12 +139,12 @@ public class WeatherData {
         return dataCodeDesc;
     }
 
-    public String getCodeDayPic() {
-        return dataCodeDayPic;
+    public long getCodeDayPic() {
+        return dataCodeDayPicId;
     }
 
-    public String getCodeNightPic() {
-        return dataCodeNightPic;
+    public long getCodeNightPic() {
+        return dataCodeNightPicId;
     }
 
     public int getUVIndex() {
