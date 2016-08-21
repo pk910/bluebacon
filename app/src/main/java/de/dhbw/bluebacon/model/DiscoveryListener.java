@@ -29,6 +29,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
 
     public static final String LOG_TAG = "DHBW DiscoveryListener";
     public static final int SOCKET_TIMEOUT_MILLIS = 2000;
+    public static final String SERVER_URL_TEMPLATE = "http://%s/json.php";
 
     Context context;
     DatagramSocket socket;
@@ -44,8 +45,8 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String hostname) {
-        if(hostname == null){
+    protected void onPostExecute(String local_ip) {
+        if(local_ip == null){
             Log.i(LOG_TAG, "UDP discovery: we got no answer");
             boolean preferRemoteServer = ((MainActivity)context).prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
             if(preferRemoteServer){
@@ -53,17 +54,17 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
                 ((MainActivity)context).progressHide();
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
             } else {
-                // use JSONLoader within new thread and don't try to discover a local server again
+                // use JSONLoader within new thread
                 Log.i(LOG_TAG, "No local server found, trying remote server...");
                 new JSONLoader(context).execute();
             }
 
         } else {
-            Log.i(LOG_TAG, "UDP discovery: got answer from: " + hostname);
-            ((MainActivity)context).prefs.edit().putString(MainActivity.PrefKeys.SERVER_ADDR.toString(), hostname).commit();
+            Log.i(LOG_TAG, "UDP discovery: got answer from: " + local_ip);
+            ((MainActivity)context).prefs.edit().putString(MainActivity.PrefKeys.SERVER_ADDR.toString(), local_ip).commit();
             Toast.makeText(context, context.getString(R.string.found_local_server), Toast.LENGTH_LONG).show();
             // we have found our server and can contact it via JSONLoader now
-            new JSONLoader(context, false).execute(hostname);
+            new JSONLoader(context, false).execute(String.format(SERVER_URL_TEMPLATE, local_ip));
         }
     }
 
@@ -95,7 +96,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
             Log.i(LOG_TAG, "Ready to receive packet");
 
             //Receive a packet
-            byte[] recvBuf = new byte[100];
+            byte[] recvBuf = new byte[32];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
 
             do{
@@ -121,7 +122,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
                 Log.i(LOG_TAG, "Packet did not come from local address!");
                 return null;
             }
-            return packet.getAddress().getHostName();
+            return packet.getAddress().getHostAddress();
 
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             if(BuildConfig.DEBUG && e.getMessage() != null) {
