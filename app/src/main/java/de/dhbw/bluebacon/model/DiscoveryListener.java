@@ -53,6 +53,8 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
                 Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
                 ((MainActivity)context).progressHide();
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
+                ((MainActivity)context).updateLastUpdateInfo(false, "-");
+                ((MainActivity)context).refreshSettingsUi();
             } else {
                 // use JSONLoader within new thread
                 Log.i(LOG_TAG, "No local server found, trying remote server...");

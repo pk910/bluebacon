@@ -24,6 +24,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
     protected Context context;
     public static final String SERVER_URL = "http://example.com";
     public static final String LOG_TAG = "DHBW JSONLoader";
+    public String usedServerType;
     private boolean success;
     private final boolean try_discovery;
 
@@ -31,12 +32,14 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         this.context = context;
         this.success = false;
         this.try_discovery = true;
+        this.usedServerType = "Remote server";
     }
 
     public JSONLoader(Context context, boolean try_discovery){
         this.context = context;
         this.success = false;
         this.try_discovery = try_discovery;
+        this.usedServerType = "Remote server";
     }
 
     @Override
@@ -44,6 +47,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         String url = null;
         if(params.length > 0){
             url = params[0];
+            this.usedServerType = "Local server";
         }
         String result = getJSON(url);
         try {
@@ -64,6 +68,8 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
             Log.i(LOG_TAG, "Success.");
             ((MainActivity)context).progressHide();
             Toast.makeText(context, context.getString(R.string.update_success), Toast.LENGTH_LONG).show();
+            ((MainActivity)context).updateLastUpdateInfo(true, this.usedServerType);
+            ((MainActivity)context).refreshSettingsUi();
         } else {
             // if we prefer the remote server and couldn't contact it, try local server discovery now.
             // don't do it though if we prefer the remote server, which failed, then discovered a local server,
@@ -77,6 +83,8 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
                 Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
                 ((MainActivity)context).progressHide();
+                ((MainActivity)context).updateLastUpdateInfo(false, "-");
+                ((MainActivity)context).refreshSettingsUi();
             }
         }
     }

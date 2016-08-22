@@ -31,6 +31,7 @@ import de.dhbw.bluebacon.model.Machine;
 import de.dhbw.bluebacon.model.ObservableBeacon;
 import de.dhbw.bluebacon.view.BeaconRadar;
 import de.dhbw.bluebacon.view.MachineRadar;
+import de.dhbw.bluebacon.view.MachineSetup;
 import de.dhbw.bluebacon.view.TabPageAdapter;
 import de.dhbw.meteoblue.LocationResolver;
 import de.dhbw.meteoblue.WeatherData;
@@ -49,7 +50,9 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     public enum PrefKeys {
         SERVER_LOCATION_PRIORITY("SERVER_LOCATION_PRIORITY"),
         SERVER_ADDR("SERVER_ADDR"),
-        DB_SCHEMA_VERSION("DB_SCHEMA_VERSION");
+        LAST_UPDATE_TIMESTAMP("LAST_UPDATE_TIMESTAMP"),
+        LAST_UPDATE_SERVER_TYPE("LAST_UPDATE_SERVER_TYPE"),
+        LAST_UPDATE_SUCCESS("LAST_UPDATE_SUCCESS");
 
         private final String text;
 
@@ -236,6 +239,21 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
     }
 
+    public void refreshSettingsUi(){
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        List<Fragment> fragments = fragmentManager.getFragments();
+        for (final Fragment fragment : fragments) {
+            if(fragment instanceof MachineSetup) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MachineSetup) fragment).refreshLastUpdateUi();
+                    }
+                });
+            }
+        }
+    }
+
     /**
      * Get BlueBaconManager object (e.g. from Fragments)
      * @return BlueBaconManager
@@ -292,8 +310,15 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
     }
 
-
     public LocationResolver getLocationResolver() {
         return locationResolver;
     }
+
+    public void updateLastUpdateInfo(boolean success, String serverType){
+        long unixTimeMillis = System.currentTimeMillis();
+        prefs.edit().putLong(PrefKeys.LAST_UPDATE_TIMESTAMP.toString(), unixTimeMillis).apply();
+        prefs.edit().putBoolean(PrefKeys.LAST_UPDATE_SUCCESS.toString(), success).apply();
+        prefs.edit().putString(PrefKeys.LAST_UPDATE_SERVER_TYPE.toString(), serverType).apply();
+    }
+
 }

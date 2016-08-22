@@ -46,12 +46,15 @@
     <string name="remote_srv">Remote</string>
     <string name="update">Update</string>
     <string name="update_desc">Update Beacons &amp; Machines:</string>
+    <string name="last_update">Last update:</string>
 
     <string name="discovering_server">Trying to discover local configuration server &#8230;</string>
     <string name="contacting_server">Contacting configuration server &#8230;</string>
     <string name="found_local_server">Found local server</string>
     <string name="no_server_found">No local and/or remote servers could be reached.</string>
     <string name="update_success">Update successful.</string>
+    <string name="success">Success</string>
+    <string name="failure">Failure</string>
     <string formatted="false" name="beacons_placeholder">%d / %d</string>
 
     <!-- meteoblue strings -->
