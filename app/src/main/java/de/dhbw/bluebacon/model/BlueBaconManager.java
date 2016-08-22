@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.SparseArray;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -36,7 +35,7 @@ public class BlueBaconManager implements IObservable {
 
     protected BeaconConsumer boundConsumer;
     protected BeaconManager beaconManager;
-    protected SparseArray<Machine> machines;
+    protected ArrayList<Machine> machines;
     protected Map<String, Machine> beaconUuidMachineMapping;
     protected Map<String, ObservableBeacon> observableBeacons;
     protected Region region = new Region("region", null, null, null);
@@ -143,7 +142,7 @@ public class BlueBaconManager implements IObservable {
 
 
             for(Machine machine : machineData) {
-                machines.put(machines.keyAt(machines.size() - 1) + 1, machine);
+                machines.add(machine);
                 for(BeaconData beacon : beaconData){
                     if(beacon.machineid == machine.getId()){
                         machine.registerBeacon(beacon.uuid, beacon.posX, beacon.posY);
@@ -172,7 +171,7 @@ public class BlueBaconManager implements IObservable {
     public BlueBaconManager(BeaconConsumer consumer) {
         this.boundConsumer = consumer;
         this.beaconUuidMachineMapping = new HashMap<>();
-        this.machines = new SparseArray<>();
+        this.machines = new ArrayList<>();
         this.observableBeacons = new HashMap<>();
         this.observers = new ArrayList<>();
 
@@ -319,7 +318,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Return machines
      */
-    public SparseArray<Machine> getMachines() {
+    public ArrayList<Machine> getMachines() {
         return this.machines;
     }
 

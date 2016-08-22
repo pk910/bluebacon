@@ -95,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         beacons = new ArrayList<>();
         machines = new ArrayList<>();
         beaconDB = new BeaconDB(this);
+        //beaconDB.clearBeacons();
+        //beaconDB.clearMachines();
         blueBaconManager = new BlueBaconManager(this);
         blueBaconManager.subscribe(this);
 

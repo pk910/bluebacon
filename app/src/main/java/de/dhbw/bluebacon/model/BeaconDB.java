@@ -113,17 +113,18 @@ public class BeaconDB {
         Cursor rs = sqlite_db.rawQuery("SELECT * FROM machines WHERE machineid = ?;", new String[]{String.valueOf(machineId)});
         if(rs.moveToNext()){
             return new Machine(
-                    rs.getInt(1), // id
-                    rs.getString(2), // name
-                    rs.getString(3), // description
-                    rs.getString(4), // maintenance status
-                    rs.getString(5) // production status
+                    rs.getInt(rs.getColumnIndex("machineid")),
+                    rs.getString(rs.getColumnIndex("machinename")),
+                    rs.getString(rs.getColumnIndex("description")),
+                    rs.getString(rs.getColumnIndex("maintenancestatus")),
+                    rs.getString(rs.getColumnIndex("productionstatus"))
             );
         }
         rs.close();
         return null;
     }
 
+    //TODO: write separate stmt for performance
     public ArrayList<Machine> getMachines(){
         ArrayList<Machine> result = new ArrayList<>();
         Cursor rs = sqlite_db.rawQuery("SELECT machineid FROM machines;", null);
@@ -143,8 +144,8 @@ public class BeaconDB {
                 "posY, " +
                 "machineid) VALUES (?, ?, ?, ?, ?, ?)");
         stmt.bindString(1, beacon.uuid);
-        stmt.bindString(2, beacon.major);
-        stmt.bindString(3, beacon.minor);
+        stmt.bindLong(2, beacon.major);
+        stmt.bindLong(3, beacon.minor);
         stmt.bindDouble(4, beacon.posX);
         stmt.bindDouble(5, beacon.posY);
         stmt.bindLong(6, beacon.machineid < 1 ? 0 : beacon.machineid);
@@ -187,18 +188,19 @@ public class BeaconDB {
         Cursor rs = sqlite_db.rawQuery("SELECT * FROM beacons WHERE beaconid = ?;", new String[]{String.valueOf(beaconId)});
         if(rs.moveToNext()){
             return new BeaconData(
-                    rs.getString(2), // uuid
-                    rs.getString(3), // majoir
-                    rs.getString(4), // minor
-                    rs.getDouble(5), // posX
-                    rs.getDouble(6), // posY
-                    rs.getInt(7) // machineID
+                    rs.getString(rs.getColumnIndex("uuid")),
+                    rs.getInt(rs.getColumnIndex("major")),
+                    rs.getInt(rs.getColumnIndex("minor")),
+                    rs.getDouble(rs.getColumnIndex("posY")),
+                    rs.getDouble(rs.getColumnIndex("posY")),
+                    rs.getInt(rs.getColumnIndex("machineid"))
             );
         }
         rs.close();
         return null;
     }
 
+    //TODO: write separate stmt for performance
     public ArrayList<BeaconData> getBeacons(){
         ArrayList<BeaconData> result = new ArrayList<>();
         Cursor rs = sqlite_db.rawQuery("SELECT beaconid FROM beacons;", null);

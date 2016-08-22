@@ -115,21 +115,20 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         for(int i = 0; i < beaconsJSON.length(); i++){
             beacons.add(new BeaconData(
                     beaconsJSON.getJSONObject(i).getString("UUID"),
-                    beaconsJSON.getJSONObject(i).getString("Major"),
-                    beaconsJSON.getJSONObject(i).getString("Minor"),
-                    beaconsJSON.getJSONObject(i).getDouble("posX"),
-                    beaconsJSON.getJSONObject(i).getDouble("posY"),
+                    beaconsJSON.getJSONObject(i).getInt("Major"),
+                    beaconsJSON.getJSONObject(i).getInt("Minor"),
+                    beaconsJSON.getJSONObject(i).getDouble("PositionX"),
+                    beaconsJSON.getJSONObject(i).getDouble("PositionY"),
                     beaconsJSON.getJSONObject(i).getInt("MachineID")
             ));
         }
-        //TODO: implement description / maintenance status / production status correctly in server
         for(int i = 0; i < machinesJSON.length(); i++){
             machines.add(new Machine(
                     machinesJSON.getJSONObject(i).getInt("MachineID"),
                     machinesJSON.getJSONObject(i).getString("Name"),
-                    machinesJSON.getJSONObject(i).getString("Status"),
-                    "",
-                    ""
+                    machinesJSON.getJSONObject(i).getString("Description"),
+                    machinesJSON.getJSONObject(i).getString("Maintenancestatus"),
+                    machinesJSON.getJSONObject(i).getString("Productionstatus")
             ));
         }
 

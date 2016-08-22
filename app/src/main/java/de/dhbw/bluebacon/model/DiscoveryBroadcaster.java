@@ -33,7 +33,7 @@ public class DiscoveryBroadcaster extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params){
-        // sleep a little bit to make sure we're actually listening when we send the broadcast packet
+        // try making sure we're actually listening when we send the broadcast packet
         try {
             Thread.sleep(100);
         } catch (InterruptedException e){
