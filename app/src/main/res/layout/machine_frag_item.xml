@@ -73,7 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:id="@+id/llDistance">
+            android:id="@+id/llDistance"
+            android:textColor="@color/colorWhite">
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
