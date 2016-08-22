@@ -15,6 +15,7 @@ public class URLRequest {
 
     public static final String LOG_TAG = "URLRequest";
     public static final int HTTP_OK = 200;
+    public static final int CONNECT_TIMEOUT_MILLIS = 2000;
 
     private final String urlString;
     private int http_status;
@@ -36,6 +37,7 @@ public class URLRequest {
         connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
         connection.setRequestMethod("GET");
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
 
         http_status = connection.getResponseCode();
         String line;

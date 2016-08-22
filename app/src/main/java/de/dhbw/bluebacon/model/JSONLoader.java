@@ -49,6 +49,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         try {
             Tuple<BeaconData[], Machine[]> parsed = parseJSON(result);
             save(parsed.getX(), parsed.getY());
+            success = true;
         } catch(JSONException e){
             e.printStackTrace();
         }
@@ -84,11 +85,11 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
      */
     private String getJSON(String url) {
         String urlString = url == null ? SERVER_URL : url;
+        Log.i(LOG_TAG, "Trying " + urlString + " ...");
         URLRequest request = new URLRequest(urlString);
         try{
             request.exec();
             if(request.getHTTPStatus() == URLRequest.HTTP_OK){
-                success = true;
                 return request.getResult();
             } else {
                 Log.e(LOG_TAG, "Server returned status code != " + URLRequest.HTTP_OK + ".");
