@@ -63,12 +63,14 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         if(success){
             Log.i(LOG_TAG, "Success.");
             ((MainActivity)context).progressHide();
+            Toast.makeText(context, context.getString(R.string.update_success), Toast.LENGTH_LONG).show();
         } else {
             // if we prefer the remote server and couldn't contact it, try local server discovery now.
             // don't do it though if we prefer the remote server, which failed, then discovered a local server,
             // which nevertheless failed later in the HTTP stage (this would possibly create an infinite loop)
             if(preferRemoteServer && try_discovery){
                 Log.i(LOG_TAG, "Could not contact remote server, trying to discover local server...");
+                ((MainActivity)context).progressShow(context.getString(R.string.discovering_server));
                 new DiscoveryListener(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 new DiscoveryBroadcaster(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {

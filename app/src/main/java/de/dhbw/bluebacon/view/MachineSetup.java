@@ -112,13 +112,14 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         btUpdateData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.progressShow(getString(R.string.contacting_server));
                 boolean preferRemoteServer = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
                 if(preferRemoteServer){
                     // try hard-coded hostname first
+                    mainActivity.progressShow(getString(R.string.contacting_server));
                     new JSONLoader(mainActivity).execute();
                 } else {
                     // try a discovery via UDP broadcast first
+                    mainActivity.progressShow(getString(R.string.discovering_server));
                     new DiscoveryListener(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     new DiscoveryBroadcaster(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }

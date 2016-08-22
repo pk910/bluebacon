@@ -56,14 +56,15 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
             } else {
                 // use JSONLoader within new thread
                 Log.i(LOG_TAG, "No local server found, trying remote server...");
+                ((MainActivity)context).progressShow(context.getString(R.string.contacting_server));
                 new JSONLoader(context).execute();
             }
 
         } else {
             Log.i(LOG_TAG, "UDP discovery: got answer from: " + local_ip);
             ((MainActivity)context).prefs.edit().putString(MainActivity.PrefKeys.SERVER_ADDR.toString(), local_ip).commit();
-            Toast.makeText(context, context.getString(R.string.found_local_server), Toast.LENGTH_LONG).show();
             // we have found our server and can contact it via JSONLoader now
+            ((MainActivity)context).progressShow(context.getString(R.string.contacting_server));
             new JSONLoader(context, false).execute(String.format(SERVER_URL_TEMPLATE, local_ip));
         }
     }
