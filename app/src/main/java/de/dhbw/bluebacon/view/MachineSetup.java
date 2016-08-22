@@ -181,10 +181,11 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         DateFormat tf = android.text.format.DateFormat.getTimeFormat(mainActivity);
         String localDatePattern  = ((SimpleDateFormat)df).toLocalizedPattern();
         String localTimePattern  = ((SimpleDateFormat)tf).toLocalizedPattern();
+        Date lastUpdate = new Date(lastUpdateTimestamp);
         tvLastUpdateTimestamp.setText(String.format(
                 "%s %s",
-                android.text.format.DateFormat.format(localDatePattern, new Date(lastUpdateTimestamp)),
-                android.text.format.DateFormat.format(localTimePattern, new Date(lastUpdateTimestamp))
+                android.text.format.DateFormat.format(localDatePattern, lastUpdate),
+                android.text.format.DateFormat.format(localTimePattern, lastUpdate)
         ));
         tvLastUpdateSuccess.setText(lastUpdateSuccess ? getString(R.string.success) : getString(R.string.failure));
         tvLastUpdateServerType.setText(lastUpdateServerType);
