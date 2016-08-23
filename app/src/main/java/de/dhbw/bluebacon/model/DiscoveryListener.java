@@ -1,10 +1,7 @@
 package de.dhbw.bluebacon.model;
 
 import android.content.Context;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +10,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -91,9 +90,6 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
     // the HMAC secret merely serves as a way to tie discovery responses to discovery requests a little bit more tightly.
     // the HMAC secret should be considered public and is not intended as a means for providing authentication.
     public String listen(){
-        WifiManager wifi = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo dhcp = wifi.getDhcpInfo();
-        String ipaddr = Formatter.formatIpAddress(dhcp.ipAddress);
         try {
             //Keep a socket open to listen to all UDP traffic that is destined for this port
             InetAddress wildCard = new InetSocketAddress(0).getAddress(); // 0.0.0.0, i.e. all interfaces
@@ -112,11 +108,7 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
                 // ignore our own packets and wait for a next one.
                 // make it possible for other threads to check if
                 // we got a datagram from ourselves so they know the socket is open.
-                // could use a more elegant way to compare ip addresses..
-                fromThisHost = (
-                        packet.getAddress().getHostAddress().equals(ipaddr)
-                        || packet.getAddress().getHostAddress().equals("127.0.0.1")
-                );
+                fromThisHost = isOwnIpAddress(packet.getAddress());
                 if(fromThisHost){
                     this.gotOwnDatagram.compareAndSet(false, true);
                 }
@@ -151,22 +143,16 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
         return null;
     }
 
-    public static int packIpv4Addr(byte[] bytes){
-        int val = 0;
-        for (int i : bytes) {
-            val <<= 8;
-            val |= i & 0xff;
+    public static boolean isOwnIpAddress(InetAddress addr) {
+        if (addr.isAnyLocalAddress() || addr.isLoopbackAddress()) {
+            return true;
         }
-        return val;
-    }
 
-    public static byte[] unpackIpv4Addr(int bytes){
-        return new byte[] {
-                (byte)((bytes >>> 24) & 0xff),
-                (byte)((bytes >>> 16) & 0xff),
-                (byte)((bytes >>>  8) & 0xff),
-                (byte)((bytes       ) & 0xff)
-        };
+        try {
+            return NetworkInterface.getByInetAddress(addr) != null;
+        } catch (SocketException e) {
+            return false;
+        }
     }
 
 }
