@@ -132,8 +132,9 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
                 } else {
                     // try a discovery via UDP broadcast first
                     mainActivity.progressShow(getString(R.string.discovering_server));
-                    new DiscoveryListener(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    new DiscoveryBroadcaster(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    DiscoveryListener listener = new DiscoveryListener(mainActivity);
+                    listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new DiscoveryBroadcaster(mainActivity, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         });

@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -31,12 +32,16 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
     public static final int SOCKET_TIMEOUT_MILLIS = 2000;
     public static final String SERVER_URL_TEMPLATE = "http://%s/json.php";
 
+    public AtomicBoolean gotOwnDatagram;
+
     Context context;
     DatagramSocket socket;
+
     private static final String HMAC_SECRET = "eFqqDnFNeLLJ";
 
     public DiscoveryListener(Context context){
         this.context = context;
+        this.gotOwnDatagram = new AtomicBoolean(false);
     }
 
     @Override
@@ -96,17 +101,26 @@ public class DiscoveryListener extends AsyncTask<Void, Void, String> {
             socket.setBroadcast(true);
             socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
 
-            Log.i(LOG_TAG, "Ready to receive packet");
-
             //Receive a packet
             byte[] recvBuf = new byte[32];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+            Log.i(LOG_TAG, "Ready to receive packet");
 
+            boolean fromThisHost;
             do{
                 socket.receive(packet);
-                // ignore our own packets and wait for a next one
+                // ignore our own packets and wait for a next one.
+                // make it possible for other threads to check if
+                // we got a datagram from ourselves so they know the socket is open.
                 // could use a more elegant way to compare ip addresses..
-            } while(packet.getAddress().getHostAddress().equals(ipaddr));
+                fromThisHost = (
+                        packet.getAddress().getHostAddress().equals(ipaddr)
+                        || packet.getAddress().getHostAddress().equals("127.0.0.1")
+                );
+                if(fromThisHost){
+                    this.gotOwnDatagram.compareAndSet(false, true);
+                }
+            } while(fromThisHost);
 
             //Packet received
             if(BuildConfig.DEBUG){

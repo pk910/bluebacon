@@ -77,8 +77,9 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
             if(preferRemoteServer && try_discovery){
                 Log.i(LOG_TAG, "Could not contact remote server, trying to discover local server...");
                 ((MainActivity)context).progressShow(context.getString(R.string.discovering_server));
-                new DiscoveryListener(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new DiscoveryBroadcaster(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                DiscoveryListener listener = new DiscoveryListener(context);
+                listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new DiscoveryBroadcaster(context, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
