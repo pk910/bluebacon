@@ -15,15 +15,23 @@ public class URLRequest {
 
     public static final String LOG_TAG = "URLRequest";
     public static final int HTTP_OK = 200;
-    public static final int CONNECT_TIMEOUT_MILLIS = 2000;
+    public static final int CONNECT_TIMEOUT_MILLIS_DEFAULT = 2000;
 
     private final String urlString;
+    private final int connectTimeoutMillis;
     private int http_status;
     private String result;
 
     public URLRequest(String urlString){
         this.urlString = urlString;
         this.http_status = 0;
+        this.connectTimeoutMillis = CONNECT_TIMEOUT_MILLIS_DEFAULT;
+    }
+
+    public URLRequest(String urlString, int connectTimeoutMillis){
+        this.urlString = urlString;
+        this.http_status = 0;
+        this.connectTimeoutMillis = connectTimeoutMillis;
     }
 
     public void exec() throws IOException {
@@ -37,7 +45,7 @@ public class URLRequest {
         connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
         connection.setRequestMethod("GET");
-        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
+        connection.setConnectTimeout(this.connectTimeoutMillis);
 
         http_status = connection.getResponseCode();
         String line;
