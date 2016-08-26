@@ -1,0 +1,3 @@
+[submodule "localservicediscovery"]
+	path = localservicediscovery
+	url = https://github.com/zoellerd/LocalServiceDiscovery

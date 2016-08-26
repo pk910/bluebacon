@@ -15,11 +15,14 @@ import java.util.ArrayList;
 
 import de.dhbw.bluebacon.MainActivity;
 import de.dhbw.bluebacon.R;
+import de.dhbw.localservicediscovery.DiscoveryListener;
+import de.dhbw.localservicediscovery.DiscoveryUdpBroadcaster;
+import de.dhbw.localservicediscovery.DiscoveryUdpListener;
 
 /**
  * Loader for data loading
  */
-public class JSONLoader extends AsyncTask<String, Void, Void> {
+public class JSONLoader extends AsyncTask<String, Void, Void> implements DiscoveryListener {
 
     protected Context context;
     public static final String SERVER_URL = "http://example.com";
@@ -77,9 +80,10 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
             if(preferRemoteServer && try_discovery){
                 Log.i(LOG_TAG, "Could not contact remote server, trying to discover local server...");
                 ((MainActivity)context).progressShow(context.getString(R.string.discovering_server));
-                DiscoveryListener listener = new DiscoveryListener(context);
+                DiscoveryUdpListener listener = new DiscoveryUdpListener();
+                listener.subscribe(this);
                 listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new DiscoveryBroadcaster(context, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new DiscoveryUdpBroadcaster(context, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
@@ -155,6 +159,11 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         ((MainActivity)context).getBeaconDB().clearMachines();
         ((MainActivity)context).getBeaconDB().saveBeacons(beacons);
         ((MainActivity)context).getBeaconDB().saveMachines(machines);
+    }
+
+    @Override
+    public void onServiceDiscoveryStatusUpdate(String localIpAddr){
+        ((MainActivity)context).onServiceDiscoveryStatusUpdate(localIpAddr);
     }
 
 }

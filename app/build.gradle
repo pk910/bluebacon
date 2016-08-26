@@ -33,6 +33,7 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'org.altbeacon:android-beacon-library:2.9'
     compile 'com.loopj.android:android-async-http:1.4.9'
+    compile project(':library')
 }
 
 task findbugsMain(type: FindBugs, dependsOn: assembleDebug) {

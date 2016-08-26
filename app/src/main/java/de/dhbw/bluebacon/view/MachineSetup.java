@@ -22,14 +22,15 @@ import java.util.Date;
 import de.dhbw.bluebacon.MainActivity;
 import de.dhbw.bluebacon.R;
 import de.dhbw.bluebacon.model.BlueBaconManager;
-import de.dhbw.bluebacon.model.DiscoveryBroadcaster;
-import de.dhbw.bluebacon.model.DiscoveryListener;
 import de.dhbw.bluebacon.model.JSONLoader;
+import de.dhbw.localservicediscovery.DiscoveryListener;
+import de.dhbw.localservicediscovery.DiscoveryUdpBroadcaster;
+import de.dhbw.localservicediscovery.DiscoveryUdpListener;
 
 /**
  * Machine Setup class
  */
-public class MachineSetup extends Fragment implements CompoundButton.OnCheckedChangeListener {
+public class MachineSetup extends Fragment implements CompoundButton.OnCheckedChangeListener, DiscoveryListener {
 
     MainActivity mainActivity;
     BlueBaconManager blueBaconManager;
@@ -132,9 +133,10 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
                 } else {
                     // try a discovery via UDP broadcast first
                     mainActivity.progressShow(getString(R.string.discovering_server));
-                    DiscoveryListener listener = new DiscoveryListener(mainActivity);
+                    DiscoveryUdpListener listener = new DiscoveryUdpListener();
+                    listener.subscribe(MachineSetup.this);
                     listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    new DiscoveryBroadcaster(mainActivity, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new DiscoveryUdpBroadcaster(mainActivity, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         });
@@ -170,6 +172,11 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onServiceDiscoveryStatusUpdate(String localIpAddr){
+        mainActivity.onServiceDiscoveryStatusUpdate(localIpAddr);
     }
 
     public void refreshLastUpdateUi(){
