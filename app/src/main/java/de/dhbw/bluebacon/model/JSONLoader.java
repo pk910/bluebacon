@@ -30,19 +30,21 @@ public class JSONLoader extends AsyncTask<String, Void, Void> implements Discove
     public String usedServerType;
     private boolean success;
     private final boolean try_discovery;
+    private static final String SERVER_TYPE_REMOTE = "Remote server";
+    private static final String SERVER_TYPE_LOCAL = "Local server";
 
     public JSONLoader(Context context){
         this.context = context;
         this.success = false;
         this.try_discovery = true;
-        this.usedServerType = "Remote server";
+        this.usedServerType = SERVER_TYPE_REMOTE;
     }
 
     public JSONLoader(Context context, boolean try_discovery){
         this.context = context;
         this.success = false;
         this.try_discovery = try_discovery;
-        this.usedServerType = "Remote server";
+        this.usedServerType = SERVER_TYPE_REMOTE;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class JSONLoader extends AsyncTask<String, Void, Void> implements Discove
         String url = null;
         if(params.length > 0){
             url = params[0];
-            this.usedServerType = "Local server";
+            this.usedServerType = SERVER_TYPE_LOCAL;
         }
         String result = getJSON(url);
         try {

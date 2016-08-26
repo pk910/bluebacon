@@ -54,11 +54,11 @@ public class URLRequest {
         while ((line = reader.readLine()) != null)
         {
             sb.append(line);
-            sb.append('\n');
+            sb.append(System.lineSeparator());
         }
 
-        isr.close();
         reader.close();
+        isr.close();
         connection.disconnect();
 
         this.result = sb.toString();
