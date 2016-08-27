@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         blueBaconManager.subscribe(this);
 
         locationResolver = new LocationResolver(this);
-        WeatherData.SetAppContext(this);
+        WeatherData.setAppContext(this);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);

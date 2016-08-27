@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+
 import cz.msebera.android.httpclient.Header;
 
 /**
@@ -27,7 +29,7 @@ public abstract class JsonRequestHelper {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                String recvStr = new String(response);
+                String recvStr = new String(response, StandardCharsets.UTF_8);
                 JSONObject jsonObj = null;
                 JSONArray jsonArr = null;
                 try {
@@ -50,7 +52,7 @@ public abstract class JsonRequestHelper {
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                 String error = null;
                 try {
-                    error = new String(errorResponse, "US-ASCII");
+                    error = new String(errorResponse, StandardCharsets.UTF_8);
                 } catch (Exception e1) {
                 }
                 Log.i("HTTPClient", "  Error: " + statusCode + " - " + error);

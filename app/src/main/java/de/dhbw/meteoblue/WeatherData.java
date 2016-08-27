@@ -12,17 +12,10 @@ import java.util.Iterator;
  * Created by pk910 on 18.08.2016.
  */
 public class WeatherData {
-    private static Context AppContext;
+    private static Context appContext;
 
-    public static void SetAppContext(Context context) {
-        AppContext = context;
-    }
-
-    private class WeatherDataCode {
-        private int code;
-        private String desc;
-        private String dayPic;
-        private String nightPic;
+    public static void setAppContext(Context context) {
+        appContext = context;
     }
 
     private WeatherData nextDay = null;
@@ -78,15 +71,15 @@ public class WeatherData {
                             data.dataCode = pictocode;
 
                             String dataCodeDayPic = String.format("meteoblue_%02d_day", pictocode);
-                            data.dataCodeDayPicId = AppContext.getResources().getIdentifier(dataCodeDayPic, "drawable", AppContext.getPackageName());
+                            data.dataCodeDayPicId = appContext.getResources().getIdentifier(dataCodeDayPic, "drawable", appContext.getPackageName());
 
                             String dataCodeNightPic = String.format("meteoblue_%02d_night", pictocode);
-                            data.dataCodeNightPicId = AppContext.getResources().getIdentifier(dataCodeNightPic, "drawable", AppContext.getPackageName());
+                            data.dataCodeNightPicId = appContext.getResources().getIdentifier(dataCodeNightPic, "drawable", appContext.getPackageName());
 
                             String dataCodeDescRes = String.format("meteoblue_code%02d", pictocode);
-                            int dataCodeDescResId = AppContext.getResources().getIdentifier(dataCodeDescRes, "string", AppContext.getPackageName());
+                            int dataCodeDescResId = appContext.getResources().getIdentifier(dataCodeDescRes, "string", appContext.getPackageName());
                             if(dataCodeDescResId != 0)
-                                data.dataCodeDesc = AppContext.getString(dataCodeDescResId);
+                                data.dataCodeDesc = appContext.getString(dataCodeDescResId);
                         } else if (key .equalsIgnoreCase("uvindex"))
                             data.dataUVIndex = values.getInt(i);
                         else if (key.equalsIgnoreCase("temperature_max"))

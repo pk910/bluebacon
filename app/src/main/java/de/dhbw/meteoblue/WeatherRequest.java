@@ -19,7 +19,7 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
     private boolean requestPending;
     private Location currentLocation, weatherLocation;
     private WeatherData weatherData;
-    private ArrayList<WeatherListener> weatherListener = new ArrayList<WeatherListener>();
+    private ArrayList<WeatherListener> weatherListener = new ArrayList<>();
 
     public void addWeatherListener(WeatherListener listener) {
         weatherListener.add(listener);
@@ -62,8 +62,9 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
             requestPending = true;
         }
         else if(weatherLocation != null && weatherLocation.distanceTo(currentLocation) < 1000 && !refresh) {
-            for (WeatherListener listener : weatherListener)
+            for (WeatherListener listener : weatherListener) {
                 listener.OnWeatherReceived(weatherData);
+            }
         }
         else {
             requestWeather();
@@ -77,8 +78,9 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
         // parse weather data
         weatherData = new WeatherData(json);
 
-        for (WeatherListener listener : weatherListener)
+        for (WeatherListener listener : weatherListener) {
             listener.OnWeatherReceived(weatherData);
+        }
     }
 
     @Override
@@ -98,8 +100,9 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
     @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
-        if(requestPending)
+        if(requestPending) {
             requestWeather();
+        }
     }
 
     @Override
