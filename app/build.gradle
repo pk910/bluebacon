@@ -4,7 +4,7 @@ apply plugin: 'pmd'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "de.dhbw_loerrach.bluebacon"
@@ -33,7 +33,7 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'org.altbeacon:android-beacon-library:2.9'
     compile 'com.loopj.android:android-async-http:1.4.9'
-    compile project(':library')
+    compile project(':localservicediscovery')
 }
 
 task findbugsMain(type: FindBugs, dependsOn: assembleDebug) {
