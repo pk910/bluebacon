@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.dhbw.bluebacon.extensions.ExtensionInterface;
+import de.dhbw.bluebacon.extensions.SmartEyeGlassExtension;
 import de.dhbw.bluebacon.model.BeaconDB;
 import de.dhbw.bluebacon.model.BlueBaconManager;
 import de.dhbw.bluebacon.model.IObservable;
@@ -75,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected List<ObservableBeacon> beacons;
     protected List<Machine> machines;
     private LocationResolver locationResolver;
+    private ExtensionInterface extension;
+    private Thread glassAdpaterThread;
 
     public List<ObservableBeacon> getBeacons() {
         return beacons;
@@ -103,11 +107,15 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         beaconDB = new BeaconDB(this);
         //beaconDB.clearBeacons();
         //beaconDB.clearMachines();
+
         blueBaconManager = new BlueBaconManager(this);
         blueBaconManager.subscribe(this);
 
         locationResolver = new LocationResolver(this);
         WeatherData.setAppContext(this);
+
+        extension = new SmartEyeGlassExtension();
+        extension.connect(this);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -161,6 +169,40 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
             }
         }
 
+        startSonySmartEyeglassNotify();
+
+    }
+
+    //TODO: more elegant solution using e.g. Handler instead?
+    //TODO: continue measuring while app is in background
+    private void startSonySmartEyeglassNotify(){
+        if(glassAdpaterThread == null || !glassAdpaterThread.isAlive()) {
+            glassAdpaterThread = new Thread(new Runnable() {
+                public void run() {
+                    ArrayList<Machine> machines;
+                    while (!Thread.currentThread().isInterrupted()) {
+                        machines = blueBaconManager.getMachines();
+                        if(machines.size() > 0){
+                            String msg = String.valueOf(machines.get(0).getDistance());
+                            extension.sendMessage(msg);
+                        }
+                        try {
+                            Thread.sleep(5000);
+                            if (Thread.currentThread().isInterrupted()) {
+                                break;
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }
+            });
+            glassAdpaterThread.start();
+        }
     }
 
     /**
@@ -170,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected void onDestroy() {
         super.onDestroy();
         this.blueBaconManager.destroy();
+        glassAdpaterThread.interrupt();
+        extension.disconnect();
     }
 
     /**

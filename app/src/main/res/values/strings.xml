@@ -94,4 +94,14 @@
     <string name="meteoblue_code34">Overcast with light snow</string>
     <string name="meteoblue_code35">Overcast with mixture of snow and rain</string>
 
+    <!-- Sony Smart Eyeglass -->
+    <!-- Name of extension, shown in preferences -->
+    <string name="extension_name">@string/app_name</string>
+    <!-- Text used on control layout -->
+    <string name="text_title_layout">Sample Text</string>
+    <!-- Text in -->
+    <string name="text_phone_to_smarteyeglass">Hello SmartEyeglass</string>
+    <!-- Configuration title shown in preferences -->
+    <string name="configuration_text">Hello World Activity</string>
+
 </resources>

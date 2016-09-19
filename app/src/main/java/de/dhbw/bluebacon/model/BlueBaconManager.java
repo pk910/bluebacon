@@ -46,6 +46,28 @@ public class BlueBaconManager implements IObservable {
     protected Double simpleModeDistance = 2.;
 
     /**
+     * Constructor
+     * @param consumer Consumer object (Activity implementing BeaconConsumer)
+     */
+
+    public BlueBaconManager(BeaconConsumer consumer) {
+        this.boundConsumer = consumer;
+        this.beaconUuidMachineMapping = new HashMap<>();
+        this.machines = new ArrayList<>();
+        this.observableBeacons = new HashMap<>();
+        this.observers = new ArrayList<>();
+
+        this.loadMachines();
+
+        RangedBeacon.setSampleExpirationMilliseconds(5000);
+        this.beaconManager = BeaconManager.getInstanceForApplication((Activity)this.boundConsumer);
+        this.beaconManager.setForegroundScanPeriod(FOREGROUNDSCANPERIOD);
+        this.beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
+        this.beaconManager.bind(this.boundConsumer);
+        this.beaconManager.setRangeNotifier(this.rangeNotifier);
+    }
+
+    /**
      * RangeNotifier is triggered if beacons are discovered
      */
     protected RangeNotifier rangeNotifier = new BlueBaconRangeNotifier();
@@ -140,7 +162,6 @@ public class BlueBaconManager implements IObservable {
             ArrayList<Machine> machineData = new ArrayList<>();
             machineData.addAll(((MainActivity)boundConsumer).getBeaconDB().getMachines());
 
-
             for(Machine machine : machineData) {
                 machines.add(machine);
                 for(BeaconData beacon : beaconData){
@@ -162,27 +183,6 @@ public class BlueBaconManager implements IObservable {
             }
         }
 
-    }
-
-    /**
-     * Constructor
-     * @param consumer Consumer object (Activity implementing BeaconConsumer)
-     */
-    public BlueBaconManager(BeaconConsumer consumer) {
-        this.boundConsumer = consumer;
-        this.beaconUuidMachineMapping = new HashMap<>();
-        this.machines = new ArrayList<>();
-        this.observableBeacons = new HashMap<>();
-        this.observers = new ArrayList<>();
-
-        this.loadMachines();
-
-        RangedBeacon.setSampleExpirationMilliseconds(5000);
-        this.beaconManager = BeaconManager.getInstanceForApplication((Activity)this.boundConsumer);
-        this.beaconManager.setForegroundScanPeriod(FOREGROUNDSCANPERIOD);
-        this.beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
-        this.beaconManager.bind(this.boundConsumer);
-        this.beaconManager.setRangeNotifier(this.rangeNotifier);
     }
 
     /**
