@@ -3,6 +3,7 @@ package de.dhbw.meteoblue;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,9 +18,16 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
 
     private boolean requestRunning;
     private boolean requestPending;
+    private boolean locationServiceEnabled;
+    private LocationResolver locationResolver;
     private Location currentLocation, weatherLocation;
     private WeatherData weatherData;
     private ArrayList<WeatherListener> weatherListener = new ArrayList<WeatherListener>();
+
+    public WeatherRequest(LocationResolver locationResolver) {
+        this.locationResolver = locationResolver;
+        this.locationResolver.addLocationListener(this);
+    }
 
     public void addWeatherListener(WeatherListener listener) {
         weatherListener.add(listener);
@@ -57,6 +65,15 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
         requestJsonFromWeb(url.toString());
     }
 
+    private void checkLocationServiceEnabled() {
+        boolean enabled = locationResolver.isGpsEnabled();
+        if(enabled != locationServiceEnabled) {
+            locationServiceEnabled = enabled;
+            for (WeatherListener listener : weatherListener)
+                listener.OnWeatherLocatorStatusChanged(locationServiceEnabled);
+        }
+    }
+
     public void requestWeather(boolean refresh) {
         if(currentLocation == null) {
             requestPending = true;
@@ -72,6 +89,18 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
 
     public Location getWeatherLocation() {
         return weatherLocation;
+    }
+
+    public boolean isWeatherLocationEnabled() {
+        return locationResolver.isGpsEnabled();
+    }
+
+    public boolean isWeatherLocationAccurate() {
+        if(weatherLocation == null)
+            return false;
+        if(weatherLocation.getAccuracy() > 200)
+            return false;
+        return true;
     }
 
     @Override
@@ -108,16 +137,16 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        Log.i("GPS", "Status Changed");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        checkLocationServiceEnabled();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        checkLocationServiceEnabled();
     }
 }

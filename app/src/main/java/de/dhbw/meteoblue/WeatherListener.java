@@ -5,4 +5,5 @@ package de.dhbw.meteoblue;
  */
 public interface WeatherListener {
     public void OnWeatherReceived(WeatherData weather);
+    public void OnWeatherLocatorStatusChanged(boolean isLocationServiceEnabled);
 }

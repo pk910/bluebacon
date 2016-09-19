@@ -2,6 +2,7 @@ package de.dhbw.bluebacon.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -64,9 +65,8 @@ public class WeatherTest extends Fragment implements WeatherListener {
         super.onCreate(savedInstanceState);
         blueBaconManager = mainActivity.getBlueBaconManager();
 
-        weather = new WeatherRequest();
+        weather = new WeatherRequest(mainActivity.getLocationResolver());
         weather.addWeatherListener(this);
-        mainActivity.getLocationResolver().addLocationListener(weather);
     }
 
     /**
@@ -86,7 +86,22 @@ public class WeatherTest extends Fragment implements WeatherListener {
         if(loc != null && weather.getWeatherLocation() == null)
             weather.onLocationChanged(loc);
 
+        currentView.findViewById(R.id.gpsEnableBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            }
+        });
+        updateGpsEnabledPanel(weather.isWeatherLocationEnabled());
+
         return currentView;
+    }
+
+    private void updateGpsEnabledPanel(boolean enabled) {
+        View panel = (View) currentView.findViewById(R.id.gpsDisabledPanel);
+        if(panel == null)
+            return;
+        panel.setVisibility(enabled ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -217,5 +232,10 @@ public class WeatherTest extends Fragment implements WeatherListener {
         weatherImageView.setImageResource(weather.getCodeDayPic());
 
         weatherView.setText(strb.toString());
+    }
+
+    @Override
+    public void OnWeatherLocatorStatusChanged(boolean isLocationServiceEnabled) {
+        updateGpsEnabledPanel(isLocationServiceEnabled);
     }
 }

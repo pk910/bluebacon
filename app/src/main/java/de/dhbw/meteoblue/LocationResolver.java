@@ -73,6 +73,16 @@ public class LocationResolver implements LocationListener {
         }
     }
 
+    public boolean isGpsEnabled(boolean gpsonly) {
+        boolean gpsLocatorEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean wifiLocatorEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return gpsLocatorEnabled || (!gpsonly && wifiLocatorEnabled);
+    }
+
+    public boolean isGpsEnabled() {
+        return isGpsEnabled(false);
+    }
+
     /** Determines whether one location reading is better than the current location fix
      * @param location  The new location that you want to evaluate
      * @param currentBestLocation  The current location fix, to which you want to compare the new one.

@@ -53,6 +53,9 @@
     <string formatted="false" name="beacons_placeholder">%d / %d</string>
 
     <!-- meteoblue strings -->
+    <string name="weather_gps_disabled">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="weather_gps_enable">Enable GPS</string>
+
     <string name="meteoblue_code01">Clear, cloudless sky</string>
     <string name="meteoblue_code02">Clear, few cirrus</string>
     <string name="meteoblue_code03">Clear with cirrus</string>
