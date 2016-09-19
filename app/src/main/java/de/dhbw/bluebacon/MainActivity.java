@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.Toast;
 
 import org.altbeacon.beacon.BeaconConsumer;
 
@@ -23,14 +24,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.dhbw.bluebacon.extensions.ExtensionInterface;
+import de.dhbw.bluebacon.extensions.SmartEyeGlassExtension;
 import de.dhbw.bluebacon.model.BeaconDB;
 import de.dhbw.bluebacon.model.BlueBaconManager;
 import de.dhbw.bluebacon.model.IObservable;
 import de.dhbw.bluebacon.model.IObserver;
+import de.dhbw.bluebacon.model.JSONLoader;
 import de.dhbw.bluebacon.model.Machine;
 import de.dhbw.bluebacon.model.ObservableBeacon;
 import de.dhbw.bluebacon.view.BeaconRadar;
 import de.dhbw.bluebacon.view.MachineRadar;
+import de.dhbw.bluebacon.view.MachineSetup;
 import de.dhbw.bluebacon.view.TabPageAdapter;
 import de.dhbw.meteoblue.LocationResolver;
 import de.dhbw.meteoblue.WeatherData;
@@ -42,6 +47,7 @@ import de.dhbw.meteoblue.WeatherData;
 public class MainActivity extends AppCompatActivity implements IObserver, BeaconConsumer {
 
     public static final String LOG_TAG = "DHBW MainActivity";
+    public static final String SERVER_URL_TEMPLATE = "http://%s/json.php";
 
     public static final int PERMISSIONS_REQUEST_LOCATION_RESOLVER = 1;
 
@@ -49,7 +55,9 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     public enum PrefKeys {
         SERVER_LOCATION_PRIORITY("SERVER_LOCATION_PRIORITY"),
         SERVER_ADDR("SERVER_ADDR"),
-        DB_SCHEMA_VERSION("DB_SCHEMA_VERSION");
+        LAST_UPDATE_TIMESTAMP("LAST_UPDATE_TIMESTAMP"),
+        LAST_UPDATE_SERVER_TYPE("LAST_UPDATE_SERVER_TYPE"),
+        LAST_UPDATE_SUCCESS("LAST_UPDATE_SUCCESS");
 
         private final String text;
 
@@ -69,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected List<ObservableBeacon> beacons;
     protected List<Machine> machines;
     private LocationResolver locationResolver;
+    private ExtensionInterface extension;
+    private Thread glassAdpaterThread;
 
     public List<ObservableBeacon> getBeacons() {
         return beacons;
@@ -95,11 +105,17 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         beacons = new ArrayList<>();
         machines = new ArrayList<>();
         beaconDB = new BeaconDB(this);
+        //beaconDB.clearBeacons();
+        //beaconDB.clearMachines();
+
         blueBaconManager = new BlueBaconManager(this);
         blueBaconManager.subscribe(this);
 
         locationResolver = new LocationResolver(this);
-        WeatherData.SetAppContext(this);
+        WeatherData.setAppContext(this);
+
+        extension = new SmartEyeGlassExtension();
+        extension.connect(this);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -153,6 +169,40 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
             }
         }
 
+        startSonySmartEyeglassNotify();
+
+    }
+
+    //TODO: more elegant solution using e.g. Handler instead?
+    //TODO: continue measuring while app is in background
+    private void startSonySmartEyeglassNotify(){
+        if(glassAdpaterThread == null || !glassAdpaterThread.isAlive()) {
+            glassAdpaterThread = new Thread(new Runnable() {
+                public void run() {
+                    ArrayList<Machine> machines;
+                    while (!Thread.currentThread().isInterrupted()) {
+                        machines = blueBaconManager.getMachines();
+                        if(machines.size() > 0){
+                            String msg = String.valueOf(machines.get(0).getDistance());
+                            extension.sendMessage(msg);
+                        }
+                        try {
+                            Thread.sleep(5000);
+                            if (Thread.currentThread().isInterrupted()) {
+                                break;
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }
+            });
+            glassAdpaterThread.start();
+        }
     }
 
     /**
@@ -162,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
     protected void onDestroy() {
         super.onDestroy();
         this.blueBaconManager.destroy();
+        glassAdpaterThread.interrupt();
+        extension.disconnect();
     }
 
     /**
@@ -234,6 +286,21 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
     }
 
+    public void refreshSettingsUi(){
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        List<Fragment> fragments = fragmentManager.getFragments();
+        for (final Fragment fragment : fragments) {
+            if(fragment instanceof MachineSetup) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MachineSetup) fragment).refreshLastUpdateUi();
+                    }
+                });
+            }
+        }
+    }
+
     /**
      * Get BlueBaconManager object (e.g. from Fragments)
      * @return BlueBaconManager
@@ -290,8 +357,41 @@ public class MainActivity extends AppCompatActivity implements IObserver, Beacon
         }
     }
 
-
     public LocationResolver getLocationResolver() {
         return locationResolver;
     }
+
+    public void updateLastUpdateInfo(boolean success, String serverType){
+        long unixTimeMillis = System.currentTimeMillis();
+        prefs.edit().putLong(PrefKeys.LAST_UPDATE_TIMESTAMP.toString(), unixTimeMillis).apply();
+        prefs.edit().putBoolean(PrefKeys.LAST_UPDATE_SUCCESS.toString(), success).apply();
+        prefs.edit().putString(PrefKeys.LAST_UPDATE_SERVER_TYPE.toString(), serverType).apply();
+    }
+
+    public void onServiceDiscoveryStatusUpdate(String localIpAddr){
+        if(localIpAddr == null){
+            Log.i(LOG_TAG, "UDP discovery: we got no answer");
+            boolean preferRemoteServer = prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
+            if(preferRemoteServer){
+                Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
+                progressHide();
+                Toast.makeText(this, getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
+                updateLastUpdateInfo(false, "-");
+                refreshSettingsUi();
+            } else {
+                // use JSONLoader within new thread
+                Log.i(LOG_TAG, "No local server found, trying remote server...");
+                progressShow(getString(R.string.contacting_server));
+                new JSONLoader(this).execute();
+            }
+
+        } else {
+            Log.i(LOG_TAG, "UDP discovery: got answer from: " + localIpAddr);
+            prefs.edit().putString(MainActivity.PrefKeys.SERVER_ADDR.toString(), localIpAddr).apply();
+            // we have found our server and can contact it via JSONLoader now
+            progressShow(getString(R.string.contacting_server));
+            new JSONLoader(this, false).execute(String.format(SERVER_URL_TEMPLATE, localIpAddr));
+        }
+    }
+
 }

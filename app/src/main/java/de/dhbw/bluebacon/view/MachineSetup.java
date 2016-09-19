@@ -13,18 +13,24 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Switch;
+import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import de.dhbw.bluebacon.MainActivity;
 import de.dhbw.bluebacon.R;
 import de.dhbw.bluebacon.model.BlueBaconManager;
-import de.dhbw.bluebacon.model.DiscoveryBroadcaster;
-import de.dhbw.bluebacon.model.DiscoveryListener;
 import de.dhbw.bluebacon.model.JSONLoader;
+import de.dhbw.localservicediscovery.DiscoveryListener;
+import de.dhbw.localservicediscovery.DiscoveryUdpBroadcaster;
+import de.dhbw.localservicediscovery.DiscoveryUdpListener;
 
 /**
  * Machine Setup class
  */
-public class MachineSetup extends Fragment implements CompoundButton.OnCheckedChangeListener {
+public class MachineSetup extends Fragment implements CompoundButton.OnCheckedChangeListener, DiscoveryListener {
 
     MainActivity mainActivity;
     BlueBaconManager blueBaconManager;
@@ -32,6 +38,9 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
     Switch swUseSimpleMode;
     RadioButton rdRemoteServer;
     RadioButton rdLocalServer;
+    TextView tvLastUpdateTimestamp;
+    TextView tvLastUpdateSuccess;
+    TextView tvLastUpdateServerType;
 
     public static final String LOG_TAG = "DHBW MachineSetup";
 
@@ -91,8 +100,12 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         // find radio buttons for server location preference
         rdRemoteServer = (RadioButton) machineSetup.findViewById(R.id.rdRemoteServer);
         rdLocalServer = (RadioButton) machineSetup.findViewById(R.id.rdLocalServer);
-        // get value from shared prefs and change the radio buttons to the correct state
+        // get value from shared prefs
         boolean preferRemoteServer = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
+        // we have to set both radio buttons explicitly because if we set only one,
+        // and that one doesn't get checked, no radio button gets checked (invalid state)
+        // we could check one radio button by default via xml, but setting them here explicitly
+        // based on shared prefs is better practice anyway.
         rdRemoteServer.setChecked(preferRemoteServer);
         rdLocalServer.setChecked(!preferRemoteServer);
         // attach listeners to check for changes in state
@@ -112,18 +125,27 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
         btUpdateData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.progressShow(getString(R.string.contacting_server));
                 boolean preferRemoteServer = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.SERVER_LOCATION_PRIORITY.toString(), true);
                 if(preferRemoteServer){
                     // try hard-coded hostname first
+                    mainActivity.progressShow(getString(R.string.contacting_server));
                     new JSONLoader(mainActivity).execute();
                 } else {
                     // try a discovery via UDP broadcast first
-                    new DiscoveryListener(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    new DiscoveryBroadcaster(mainActivity).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    mainActivity.progressShow(getString(R.string.discovering_server));
+                    DiscoveryUdpListener listener = new DiscoveryUdpListener();
+                    listener.subscribe(MachineSetup.this);
+                    listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new DiscoveryUdpBroadcaster(mainActivity, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         });
+
+        tvLastUpdateTimestamp = (TextView) machineSetup.findViewById(R.id.tvLastUpdateTimestamp);
+        tvLastUpdateSuccess = (TextView) machineSetup.findViewById(R.id.tvLastUpdateSuccess);
+        tvLastUpdateServerType = (TextView) machineSetup.findViewById(R.id.tvLastUpdateServerType);
+
+        this.refreshLastUpdateUi();
 
         return machineSetup;
     }
@@ -150,5 +172,30 @@ public class MachineSetup extends Fragment implements CompoundButton.OnCheckedCh
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onServiceDiscoveryStatusUpdate(String localIpAddr){
+        mainActivity.onServiceDiscoveryStatusUpdate(localIpAddr);
+    }
+
+    public void refreshLastUpdateUi(){
+        // get results of last update
+        long lastUpdateTimestamp = mainActivity.prefs.getLong(MainActivity.PrefKeys.LAST_UPDATE_TIMESTAMP.toString(), 0);
+        boolean lastUpdateSuccess = mainActivity.prefs.getBoolean(MainActivity.PrefKeys.LAST_UPDATE_SUCCESS.toString(), false);
+        String lastUpdateServerType = mainActivity.prefs.getString(MainActivity.PrefKeys.LAST_UPDATE_SERVER_TYPE.toString(), "-");
+        // update ui elements
+        DateFormat df = android.text.format.DateFormat.getMediumDateFormat(mainActivity);
+        DateFormat tf = android.text.format.DateFormat.getTimeFormat(mainActivity);
+        String localDatePattern  = ((SimpleDateFormat)df).toLocalizedPattern();
+        String localTimePattern  = ((SimpleDateFormat)tf).toLocalizedPattern();
+        Date lastUpdate = new Date(lastUpdateTimestamp);
+        tvLastUpdateTimestamp.setText(String.format(
+                "%s %s",
+                android.text.format.DateFormat.format(localDatePattern, lastUpdate),
+                android.text.format.DateFormat.format(localTimePattern, lastUpdate)
+        ));
+        tvLastUpdateSuccess.setText(lastUpdateSuccess ? getString(R.string.success) : getString(R.string.failure));
+        tvLastUpdateServerType.setText(lastUpdateServerType);
     }
 }

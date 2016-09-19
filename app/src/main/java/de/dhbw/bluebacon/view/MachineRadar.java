@@ -75,4 +75,5 @@ public class MachineRadar extends Fragment {
         machines.addAll(newMachines);
         machineAdapter.notifyDataSetChanged();
     }
+
 }

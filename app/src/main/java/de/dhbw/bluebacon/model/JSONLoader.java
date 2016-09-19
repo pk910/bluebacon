@@ -15,28 +15,36 @@ import java.util.ArrayList;
 
 import de.dhbw.bluebacon.MainActivity;
 import de.dhbw.bluebacon.R;
+import de.dhbw.localservicediscovery.DiscoveryListener;
+import de.dhbw.localservicediscovery.DiscoveryUdpBroadcaster;
+import de.dhbw.localservicediscovery.DiscoveryUdpListener;
 
 /**
  * Loader for data loading
  */
-public class JSONLoader extends AsyncTask<String, Void, Void> {
+public class JSONLoader extends AsyncTask<String, Void, Void> implements DiscoveryListener {
 
     protected Context context;
     public static final String SERVER_URL = "http://example.com";
     public static final String LOG_TAG = "DHBW JSONLoader";
+    public String usedServerType;
     private boolean success;
     private final boolean try_discovery;
+    private static final String SERVER_TYPE_REMOTE = "Remote server";
+    private static final String SERVER_TYPE_LOCAL = "Local server";
 
     public JSONLoader(Context context){
         this.context = context;
         this.success = false;
         this.try_discovery = true;
+        this.usedServerType = SERVER_TYPE_REMOTE;
     }
 
     public JSONLoader(Context context, boolean try_discovery){
         this.context = context;
         this.success = false;
         this.try_discovery = try_discovery;
+        this.usedServerType = SERVER_TYPE_REMOTE;
     }
 
     @Override
@@ -44,11 +52,13 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         String url = null;
         if(params.length > 0){
             url = params[0];
+            this.usedServerType = SERVER_TYPE_LOCAL;
         }
         String result = getJSON(url);
         try {
             Tuple<BeaconData[], Machine[]> parsed = parseJSON(result);
             save(parsed.getX(), parsed.getY());
+            success = true;
         } catch(JSONException e){
             e.printStackTrace();
         }
@@ -62,18 +72,26 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         if(success){
             Log.i(LOG_TAG, "Success.");
             ((MainActivity)context).progressHide();
+            Toast.makeText(context, context.getString(R.string.update_success), Toast.LENGTH_LONG).show();
+            ((MainActivity)context).updateLastUpdateInfo(true, this.usedServerType);
+            ((MainActivity)context).refreshSettingsUi();
         } else {
             // if we prefer the remote server and couldn't contact it, try local server discovery now.
             // don't do it though if we prefer the remote server, which failed, then discovered a local server,
             // which nevertheless failed later in the HTTP stage (this would possibly create an infinite loop)
             if(preferRemoteServer && try_discovery){
                 Log.i(LOG_TAG, "Could not contact remote server, trying to discover local server...");
-                new DiscoveryListener(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new DiscoveryBroadcaster(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                ((MainActivity)context).progressShow(context.getString(R.string.discovering_server));
+                DiscoveryUdpListener listener = new DiscoveryUdpListener();
+                listener.subscribe(this);
+                listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new DiscoveryUdpBroadcaster(context, listener.gotOwnDatagram).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 Log.e(LOG_TAG, "No local and/or remote servers could be reached.");
                 Toast.makeText(context, context.getString(R.string.no_server_found), Toast.LENGTH_LONG).show();
                 ((MainActivity)context).progressHide();
+                ((MainActivity)context).updateLastUpdateInfo(false, "-");
+                ((MainActivity)context).refreshSettingsUi();
             }
         }
     }
@@ -84,11 +102,11 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
      */
     private String getJSON(String url) {
         String urlString = url == null ? SERVER_URL : url;
+        Log.i(LOG_TAG, "Trying " + urlString + " ...");
         URLRequest request = new URLRequest(urlString);
         try{
             request.exec();
             if(request.getHTTPStatus() == URLRequest.HTTP_OK){
-                success = true;
                 return request.getResult();
             } else {
                 Log.e(LOG_TAG, "Server returned status code != " + URLRequest.HTTP_OK + ".");
@@ -115,21 +133,20 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         for(int i = 0; i < beaconsJSON.length(); i++){
             beacons.add(new BeaconData(
                     beaconsJSON.getJSONObject(i).getString("UUID"),
-                    beaconsJSON.getJSONObject(i).getString("Major"),
-                    beaconsJSON.getJSONObject(i).getString("Minor"),
-                    beaconsJSON.getJSONObject(i).getDouble("posX"),
-                    beaconsJSON.getJSONObject(i).getDouble("posY"),
+                    beaconsJSON.getJSONObject(i).getInt("Major"),
+                    beaconsJSON.getJSONObject(i).getInt("Minor"),
+                    beaconsJSON.getJSONObject(i).getDouble("PositionX"),
+                    beaconsJSON.getJSONObject(i).getDouble("PositionY"),
                     beaconsJSON.getJSONObject(i).getInt("MachineID")
             ));
         }
-        //TODO: implement description / maintenance status / production status correctly in server
         for(int i = 0; i < machinesJSON.length(); i++){
             machines.add(new Machine(
                     machinesJSON.getJSONObject(i).getInt("MachineID"),
                     machinesJSON.getJSONObject(i).getString("Name"),
-                    machinesJSON.getJSONObject(i).getString("Status"),
-                    "",
-                    ""
+                    machinesJSON.getJSONObject(i).getString("Description"),
+                    machinesJSON.getJSONObject(i).getString("Maintenancestatus"),
+                    machinesJSON.getJSONObject(i).getString("Productionstatus")
             ));
         }
 
@@ -144,6 +161,11 @@ public class JSONLoader extends AsyncTask<String, Void, Void> {
         ((MainActivity)context).getBeaconDB().clearMachines();
         ((MainActivity)context).getBeaconDB().saveBeacons(beacons);
         ((MainActivity)context).getBeaconDB().saveMachines(machines);
+    }
+
+    @Override
+    public void onServiceDiscoveryStatusUpdate(String localIpAddr){
+        ((MainActivity)context).onServiceDiscoveryStatusUpdate(localIpAddr);
     }
 
 }

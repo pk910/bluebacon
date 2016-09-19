@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -315,6 +316,8 @@ public class MachineAdapter extends BaseExpandableListAdapter {
         textView.setPadding(padding_5dp,padding_5dp,padding_5dp,padding_5dp);
         // set text from passed string parameter
         textView.setText(string);
+        // we use a dark background, so use white text
+        textView.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
 
         return textView;
     }

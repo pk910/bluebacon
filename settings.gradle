@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':localservicediscovery', ':SmartExtensionAPI', ':SmartExtensionUtils', ':SmartEyeglassAPI'
+project(':localservicediscovery').projectDir = new File('localservicediscovery/library')

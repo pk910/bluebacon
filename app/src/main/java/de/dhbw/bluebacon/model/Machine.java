@@ -146,7 +146,7 @@ public class Machine implements IObserver, Comparable<Machine> {
      */
     public void registerBeacon(String uuid, Double posX, Double posY) {
         this.machineBeacons.put(uuid, null);
-        this.beaconPositions.put(uuid, new Tuple<Double, Double>(posX, posY));
+        this.beaconPositions.put(uuid, new Tuple<>(posX, posY));
     }
 
     /**

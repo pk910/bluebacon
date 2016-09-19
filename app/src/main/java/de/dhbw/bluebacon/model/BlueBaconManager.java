@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.SparseArray;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -36,7 +35,7 @@ public class BlueBaconManager implements IObservable {
 
     protected BeaconConsumer boundConsumer;
     protected BeaconManager beaconManager;
-    protected SparseArray<Machine> machines;
+    protected ArrayList<Machine> machines;
     protected Map<String, Machine> beaconUuidMachineMapping;
     protected Map<String, ObservableBeacon> observableBeacons;
     protected Region region = new Region("region", null, null, null);
@@ -45,6 +44,28 @@ public class BlueBaconManager implements IObservable {
     protected Boolean useCleanedValues = true;
     protected Boolean useSimpleMode = false;
     protected Double simpleModeDistance = 2.;
+
+    /**
+     * Constructor
+     * @param consumer Consumer object (Activity implementing BeaconConsumer)
+     */
+
+    public BlueBaconManager(BeaconConsumer consumer) {
+        this.boundConsumer = consumer;
+        this.beaconUuidMachineMapping = new HashMap<>();
+        this.machines = new ArrayList<>();
+        this.observableBeacons = new HashMap<>();
+        this.observers = new ArrayList<>();
+
+        this.loadMachines();
+
+        RangedBeacon.setSampleExpirationMilliseconds(5000);
+        this.beaconManager = BeaconManager.getInstanceForApplication((Activity)this.boundConsumer);
+        this.beaconManager.setForegroundScanPeriod(FOREGROUNDSCANPERIOD);
+        this.beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
+        this.beaconManager.bind(this.boundConsumer);
+        this.beaconManager.setRangeNotifier(this.rangeNotifier);
+    }
 
     /**
      * RangeNotifier is triggered if beacons are discovered
@@ -141,9 +162,8 @@ public class BlueBaconManager implements IObservable {
             ArrayList<Machine> machineData = new ArrayList<>();
             machineData.addAll(((MainActivity)boundConsumer).getBeaconDB().getMachines());
 
-
             for(Machine machine : machineData) {
-                machines.put(machines.keyAt(machines.size() - 1) + 1, machine);
+                machines.add(machine);
                 for(BeaconData beacon : beaconData){
                     if(beacon.machineid == machine.getId()){
                         machine.registerBeacon(beacon.uuid, beacon.posX, beacon.posY);
@@ -163,27 +183,6 @@ public class BlueBaconManager implements IObservable {
             }
         }
 
-    }
-
-    /**
-     * Constructor
-     * @param consumer Consumer object (Activity implementing BeaconConsumer)
-     */
-    public BlueBaconManager(BeaconConsumer consumer) {
-        this.boundConsumer = consumer;
-        this.beaconUuidMachineMapping = new HashMap<>();
-        this.machines = new SparseArray<>();
-        this.observableBeacons = new HashMap<>();
-        this.observers = new ArrayList<>();
-
-        this.loadMachines();
-
-        RangedBeacon.setSampleExpirationMilliseconds(5000);
-        this.beaconManager = BeaconManager.getInstanceForApplication((Activity)this.boundConsumer);
-        this.beaconManager.setForegroundScanPeriod(FOREGROUNDSCANPERIOD);
-        this.beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
-        this.beaconManager.bind(this.boundConsumer);
-        this.beaconManager.setRangeNotifier(this.rangeNotifier);
     }
 
     /**
@@ -319,7 +318,7 @@ public class BlueBaconManager implements IObservable {
     /**
      * Return machines
      */
-    public SparseArray<Machine> getMachines() {
+    public ArrayList<Machine> getMachines() {
         return this.machines;
     }
 
