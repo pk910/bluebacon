@@ -9,6 +9,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/SmartExtensionAPI" />
+            <option value="$PROJECT_DIR$/SmartExtensionUtils" />
+            <option value="$PROJECT_DIR$/SmartEyeglassAPI" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/localservicediscovery/library" />
           </set>
@@ -16,6 +19,9 @@
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/SmartExtensionAPI" />
+            <option value="$PROJECT_DIR$/SmartExtensionUtils" />
+            <option value="$PROJECT_DIR$/SmartEyeglassAPI" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/localservicediscovery/library" />
           </set>
