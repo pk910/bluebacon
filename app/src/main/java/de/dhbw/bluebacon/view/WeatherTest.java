@@ -3,6 +3,7 @@ package de.dhbw.bluebacon.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -80,6 +81,10 @@ public class WeatherTest extends Fragment implements WeatherListener {
         //inflate fragment
         currentView = inflater.inflate(R.layout.weather_frag, container, false);
         weather.requestWeather(false);
+
+        Location loc = mainActivity.getLocationResolver().getLastKnownLocation();
+        if(loc != null && weather.getWeatherLocation() == null)
+            weather.onLocationChanged(loc);
 
         return currentView;
     }

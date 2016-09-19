@@ -70,6 +70,10 @@ public class WeatherRequest extends JsonRequestHelper implements LocationListene
         }
     }
 
+    public Location getWeatherLocation() {
+        return weatherLocation;
+    }
+
     @Override
     protected void onJsonReceived(JSONObject json) {
         requestRunning = false;
